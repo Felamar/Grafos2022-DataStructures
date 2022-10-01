@@ -104,7 +104,7 @@ public class GrafosOto22 extends JFrame {
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
             panelGraph.setBounds(270, 25, 1215, 900);
-            // panelGraph.setBounds(200, 25, 685, 475);
+            // panelGraph.setBounds(270, 25, 1015, 650);
             add(panelGraph);
             aristasLabel.setBounds(20, 25, 150, 25);
             add(aristasLabel);
