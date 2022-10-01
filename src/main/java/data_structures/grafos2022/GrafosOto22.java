@@ -32,8 +32,9 @@ public class GrafosOto22 extends JFrame{
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem, floydItem, warshallItem;
     GrafosOto22(){
       setSize(1500,950);
-      //setSize(900,700);
       setLocation(50,50);
+      //setSize(1300,700);
+      //setLocation(10,10);
       setTitle("Grafos Otoño 2022");
       initComponentes();
     }
