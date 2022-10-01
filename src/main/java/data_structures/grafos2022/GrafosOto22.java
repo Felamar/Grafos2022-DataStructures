@@ -123,7 +123,7 @@ public class GrafosOto22 extends JFrame{
         ereaseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
         add(ereaseNodeB);
         areaScrollPane.setBounds(1, 150, 270, 760);
-        //areaScrollPane.setBounds(0, 500, 885, 163);
+        //areaScrollPane.setBounds(1, 150, 270, 510);
         add(areaScrollPane);
     }
         
