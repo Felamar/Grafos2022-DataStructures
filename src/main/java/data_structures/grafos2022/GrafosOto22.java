@@ -528,18 +528,25 @@ public class GrafosOto22 extends JFrame{
         
         openItem.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
-                if(!nodesArray.isEmpty() && (modifiedAtBool.get() || panelGraph.isModified()))
-                    if (JOptionPane.showConfirmDialog( null,"¿Guardar progreso?","Grafos Otoño 2022", JOptionPane.YES_NO_OPTION,JOptionPane.WARNING_MESSAGE) == JOptionPane.YES_OPTION)
+                if(!nodesArray.isEmpty() && (modifiedAtBool.get() || panelGraph.isModified())){
+                    int selectedOptionTemp = JOptionPane.showConfirmDialog( null,"¿Guardar progreso?","Grafos Otoño 2022", JOptionPane.YES_NO_CANCEL_OPTION,JOptionPane.WARNING_MESSAGE);
+                    if(selectedOptionTemp == JOptionPane.CANCEL_OPTION)
+                        return;
+                    if (selectedOptionTemp == JOptionPane.YES_OPTION)
                         saveItem.doClick();
+                }
                 JFileChooser fChooser = new JFileChooser();
                 fChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
                 fChooser.setFileFilter(new FileNameExtensionFilter("TEXT FILES", "txt"));
-                fChooser.showOpenDialog(null);
+                if(fChooser.showOpenDialog(null) != JFileChooser.APPROVE_OPTION)
+                    return;
                 File tempFile = fChooser.getSelectedFile();
+
                 try {
                     fileSelected = tempFile;
                     nodesArray.clear();
                     aristasArray.clear();
+                    panelGraph.repaint();
                     Scanner fReader = new Scanner(tempFile);
                     while(fReader.hasNext()){
                         if(fReader.next().equals("n")){
