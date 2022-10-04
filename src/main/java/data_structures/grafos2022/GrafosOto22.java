@@ -20,6 +20,7 @@ public class GrafosOto22 extends JFrame {
     private String printing;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
+    ArrayList<double[][]> auxArrayFloyd;
     private PintaGrafo panelGraph;
     private AtomicBoolean directedAtBool, modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
@@ -35,8 +36,8 @@ public class GrafosOto22 extends JFrame {
     GrafosOto22() {
         setSize(1500, 950);
         setLocation(50, 50);
-        // setSize(1300,700);
-        // setLocation(10,10);
+        setSize(1300,700);
+        setLocation(10,10);
         setTitle("Grafos Otoño 2022");
         initComponentes();
     }
@@ -49,6 +50,7 @@ public class GrafosOto22 extends JFrame {
             formating = "%5d";
             nodesArray = new ArrayList<Nodo>();
             aristasArray = new ArrayList<Arista>();
+            auxArrayFloyd = new ArrayList<double[][]>();
             directedAtBool = new AtomicBoolean(true);
             modifiedAtomBool = new AtomicBoolean(false);
             panelGraph = new PintaGrafo(nodesArray, aristasArray, directedAtBool);
@@ -104,7 +106,7 @@ public class GrafosOto22 extends JFrame {
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
             panelGraph.setBounds(270, 25, 1215, 900);
-            // panelGraph.setBounds(270, 25, 1015, 650);
+            panelGraph.setBounds(270, 25, 1015, 650);
             add(panelGraph);
             aristasLabel.setBounds(20, 25, 150, 25);
             add(aristasLabel);
@@ -126,7 +128,7 @@ public class GrafosOto22 extends JFrame {
             ereaseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
             add(ereaseNodeB);
             areaScrollPane.setBounds(1, 150, 270, 760);
-            // areaScrollPane.setBounds(1, 150, 270, 510);
+            areaScrollPane.setBounds(1, 150, 270, 510);
             add(areaScrollPane);
         }
 
@@ -308,16 +310,29 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
+                    auxArrayFloyd.clear();
                     double floydTemp[][] = new double[nodesArray.size()][nodesArray.size()];
                     for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
                         floydTemp[i][j] = costMatrix[i][j];
 
-                    for (int k = 0; k < nodesArray.size(); k++)
+                    for (int k = 0; k < nodesArray.size(); k++){
                     for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
                         if (floydTemp[i][k] + floydTemp[k][j] < floydTemp[i][j])
                             floydTemp[i][j] = floydTemp[i][k] + floydTemp[k][j];
+                        auxArrayFloyd.add(floydTemp);
+                    }
+
+                    for(int i = 0; i < nodesArray.size(); i++){
+                    for(int j = 0; j < nodesArray.size(); j++){
+                    for(int k = 0; k < nodesArray.size(); k++)
+                        System.out.print(auxArrayFloyd.get(i)[j][k] + " ".repeat(3));
+                    System.out.println();
+                    }
+                    System.out.println("\n\n");
+                    }
+                    
                     areaTArea.append("Floyd: \n ");
                     for (Nodo nodeFor : nodesArray) {
                         printing = String.format(formating, nodeFor.getDato());
@@ -391,6 +406,7 @@ public class GrafosOto22 extends JFrame {
             nondirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (!nodesArray.isEmpty()) {
+                        outerloop:
                         for (Arista aristaFor : aristasArray) {
                         for (int i = aristasArray.indexOf(aristaFor) + 1; i < aristasArray.size(); i++)
                             if (aristaFor.getOrigen() == aristasArray.get(i).getDestino() && aristaFor.getDestino() == aristasArray.get(i).getOrigen()) {
@@ -398,9 +414,8 @@ public class GrafosOto22 extends JFrame {
                                 if (selectedOptionTemp == JOptionPane.CANCEL_OPTION || selectedOptionTemp == JOptionPane.NO_OPTION)
                                     return;
                                 if (selectedOptionTemp == JOptionPane.YES_OPTION)
-                                    break;
+                                    break outerloop;
                             }
-                            break;
                         }
 
                         for (int first = 0; first < aristasArray.size(); first++) 
