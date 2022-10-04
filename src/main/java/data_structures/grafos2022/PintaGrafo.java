@@ -119,16 +119,13 @@ public class PintaGrafo extends JPanel{
                     Arista aristaTemp = new Arista();
                     String[] buttonsTemp = { "Sí","No"}; 
                     int changePeso = -1;
-                    boolean reverseArista = false;
                     lineNodo = findNodo(e.getPoint());
                     lineArista.setLine(lineArista.getP1(), lineNodo.getPunto());
                     aristaTemp.setOrigen(findNodo(lineArista.getP1()).getDato());
                     aristaTemp.setDestino(lineNodo.getDato());               
                     repaint();
-                    if(!isDirectedM())
-                        reverseArista = true;
                     for(Arista aristaFor : aristas){
-                        if((aristaFor.getOrigen() == aristaTemp.getOrigen() && aristaFor.getDestino() == aristaTemp.getDestino()) || (reverseArista && aristaFor.getOrigen() == aristaTemp.getDestino() && aristaFor.getDestino() == aristaTemp.getOrigen())){
+                        if((aristaFor.getOrigen() == aristaTemp.getOrigen() && aristaFor.getDestino() == aristaTemp.getDestino()) || (!isDirectedM() && aristaFor.getOrigen() == aristaTemp.getDestino() && aristaFor.getDestino() == aristaTemp.getOrigen())){
                             int returnValue = JOptionPane.showOptionDialog(null, "Este camino ya existe\n ¿Quieres cambiar el valor del peso?", "WARNING",JOptionPane.WARNING_MESSAGE, 0, null, buttonsTemp, buttonsTemp[1]);
                             if(returnValue == JOptionPane.YES_OPTION){
                                 changePeso = aristas.indexOf(aristaFor);
