@@ -327,7 +327,7 @@ public class GrafosOto22 extends JFrame {
                     for(int i = 0; i < nodesArray.size(); i++){
                     for(int j = 0; j < nodesArray.size(); j++){
                     for(int k = 0; k < nodesArray.size(); k++)
-                        System.out.print(auxArrayFloyd.get(i)[j][k] + " ".repeat(3));
+                    System.out.print(auxArrayFloyd.get(i)[j][k] + " ".repeat(4));
                     System.out.println();
                     }
                     System.out.println("\n\n");
