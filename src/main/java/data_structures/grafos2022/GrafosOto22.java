@@ -20,7 +20,7 @@ public class GrafosOto22 extends JFrame {
     private String printing;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
-    ArrayList<double[][]> floydArray;
+    private ArrayList<double[][]> floydArray;
     private PintaGrafo panelGraph;
     private AtomicBoolean directedAtBool, modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
