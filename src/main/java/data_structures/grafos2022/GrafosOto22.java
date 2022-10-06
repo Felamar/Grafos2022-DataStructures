@@ -20,7 +20,7 @@ public class GrafosOto22 extends JFrame {
     private String printing;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
-    ArrayList<double[][]> auxArrayFloyd;
+    ArrayList<double[][]> floydArray;
     private PintaGrafo panelGraph;
     private AtomicBoolean directedAtBool, modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
@@ -36,8 +36,8 @@ public class GrafosOto22 extends JFrame {
     GrafosOto22() {
         setSize(1500, 950);
         setLocation(50, 50);
-        setSize(1300,700);
-        setLocation(10,10);
+        //setSize(1300,700);
+        //setLocation(10,10);
         setTitle("Grafos Otoño 2022");
         initComponentes();
     }
@@ -50,7 +50,7 @@ public class GrafosOto22 extends JFrame {
             formating = "%5d";
             nodesArray = new ArrayList<Nodo>();
             aristasArray = new ArrayList<Arista>();
-            auxArrayFloyd = new ArrayList<double[][]>();
+            floydArray = new ArrayList<double[][]>();
             directedAtBool = new AtomicBoolean(true);
             modifiedAtomBool = new AtomicBoolean(false);
             panelGraph = new PintaGrafo(nodesArray, aristasArray, directedAtBool);
@@ -106,7 +106,7 @@ public class GrafosOto22 extends JFrame {
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
             panelGraph.setBounds(270, 25, 1215, 900);
-            panelGraph.setBounds(270, 25, 1015, 650);
+            //panelGraph.setBounds(270, 25, 1015, 650);
             add(panelGraph);
             aristasLabel.setBounds(20, 25, 150, 25);
             add(aristasLabel);
@@ -128,7 +128,7 @@ public class GrafosOto22 extends JFrame {
             ereaseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
             add(ereaseNodeB);
             areaScrollPane.setBounds(1, 150, 270, 760);
-            areaScrollPane.setBounds(1, 150, 270, 510);
+            //areaScrollPane.setBounds(1, 150, 270, 510);
             add(areaScrollPane);
         }
 
@@ -310,45 +310,44 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
-                    auxArrayFloyd.clear();
-                    double floydTemp[][] = new double[nodesArray.size()][nodesArray.size()];
+                    floydArray.clear();
+
+                    for (int i = 0; i < nodesArray.size(); i++)
+                        floydArray.add(new double[nodesArray.size()][nodesArray.size()]);
+                    
                     for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
-                        floydTemp[i][j] = costMatrix[i][j];
+                    for (int k = 0; k < nodesArray.size(); k++)
+                        floydArray.get(i)[j][k] = costMatrix[j][k];
 
                     for (int k = 0; k < nodesArray.size(); k++){
-                    for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
-                        if (floydTemp[i][k] + floydTemp[k][j] < floydTemp[i][j])
-                            floydTemp[i][j] = floydTemp[i][k] + floydTemp[k][j];
-                        auxArrayFloyd.add(floydTemp);
-                    }
-
-                    for(int i = 0; i < nodesArray.size(); i++){
-                    for(int j = 0; j < nodesArray.size(); j++){
-                    for(int k = 0; k < nodesArray.size(); k++)
-                    System.out.print(auxArrayFloyd.get(i)[j][k] + " ".repeat(4));
-                    System.out.println();
-                    }
-                    System.out.println("\n\n");
+                    for (int i = 0; i < nodesArray.size(); i++)
+                        if (floydArray.get(k)[i][k] + floydArray.get(k)[k][j] < floydArray.get(k)[i][j])
+                            for(int h = k; h < nodesArray.size(); h++)
+                            floydArray.get(h)[i][j] = floydArray.get(h)[i][k] + floydArray.get(h)[k][j];
                     }
                     
-                    areaTArea.append("Floyd: \n ");
-                    for (Nodo nodeFor : nodesArray) {
-                        printing = String.format(formating, nodeFor.getDato());
-                        areaTArea.append(printing);
-                    }
-                    areaTArea.append("\n");
-                    for (int i = 0; i < nodesArray.size(); i++) {
-                        areaTArea.append("" + (i + 1));
-                        for (int j = 0; j < nodesArray.size(); j++) {
-                            if (floydTemp[i][j] == Double.POSITIVE_INFINITY) {
-                                formating = "%4s";
-                                printing = String.format(formating, '\u221e');
-                                formating = "%5d";
-                            } else
-                                printing = String.format(formating, (long) floydTemp[i][j]);
+                    areaTArea.setText("Floyd: \n");
+                    for (int aux = 0; aux < floydArray.size(); aux++) {
+                        areaTArea.append("Step " + (aux + 1) + ": \n ");
+                        for (Nodo nodeFor : nodesArray) {
+                            printing = String.format(formating, nodeFor.getDato());
                             areaTArea.append(printing);
+                        }
+                        areaTArea.append("\n");
+                        for (int i = 0; i < nodesArray.size(); i++) {
+                            areaTArea.append("" + (i + 1));
+                            for (int j = 0; j < nodesArray.size(); j++) {
+                                if (floydArray.get(aux)[i][j] == Double.POSITIVE_INFINITY) {
+                                    formating = "%4s";
+                                    printing = String.format(formating, '\u221e');
+                                    formating = "%5d";
+                                } else
+                                    printing = String.format(formating, (long) floydArray.get(aux)[i][j]);
+                                areaTArea.append(printing);
+                            }
+                            areaTArea.append("\n");
                         }
                         areaTArea.append("\n");
                     }
@@ -392,7 +391,6 @@ public class GrafosOto22 extends JFrame {
                     areaTArea.append("\n");
                 }
             });
-
             dirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     directedAtBool.set(true);

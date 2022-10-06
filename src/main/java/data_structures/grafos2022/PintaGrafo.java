@@ -13,8 +13,8 @@ public class PintaGrafo extends JPanel{
     private int auxData, auxDragged, nodePopUp;
     private boolean press = false, isModified = false, creatingArista = false;
     private AtomicBoolean isDirected;
-    private ArrayList<Nodo> nodes;
-    private ArrayList<Arista> aristas;
+    private ArrayList<Nodo> nodesArray;
+    private ArrayList<Arista> aristasArray;
     private Nodo lineNodo;
     private Line2D lineArista;
     private Polygon arrowHead, lineArrow;
@@ -23,8 +23,8 @@ public class PintaGrafo extends JPanel{
 
     public PintaGrafo(ArrayList<Nodo> nodo, ArrayList<Arista> arista, AtomicBoolean isDirected){
         setBackground(new Color(146, 222, 113));
-        this.nodes = nodo;
-        this.aristas = arista;
+        this.nodesArray = nodo;
+        this.aristasArray = arista;
         this.isDirected = isDirected;
         lineNodo = null;
         lineArista = null;
@@ -46,7 +46,7 @@ public class PintaGrafo extends JPanel{
         
         addMouseMotionListener(new MouseMotionAdapter(){
             public void mouseMoved(MouseEvent e){
-                if(nodes.isEmpty())
+                if(nodesArray.isEmpty())
                     return;
                 if(findNodo(e.getPoint()) != null)
                     setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
@@ -60,10 +60,10 @@ public class PintaGrafo extends JPanel{
             public void mouseDragged(MouseEvent e){
                 if(!SwingUtilities.isLeftMouseButton(e))
                     return;
-                if(auxDragged != -1 && !nodes.isEmpty() && press){
-                    nodes.get(auxDragged).setX(e.getX());
-                    nodes.get(auxDragged).setY(e.getY());
-                    nodes.get(auxDragged).setNode(new Ellipse2D.Double(e.getX() - 20, e.getY() - 20, 40, 40));
+                if(auxDragged != -1 && !nodesArray.isEmpty() && press){
+                    nodesArray.get(auxDragged).setX(e.getX());
+                    nodesArray.get(auxDragged).setY(e.getY());
+                    nodesArray.get(auxDragged).setNode(new Ellipse2D.Double(e.getX() - 20, e.getY() - 20, 40, 40));
                     repaint();
                     isModified = true;
                 }
@@ -84,19 +84,19 @@ public class PintaGrafo extends JPanel{
                     return;
                 if(e.getClickCount() == 2 && !e.isConsumed()){
                     Nodo nodeTemp = new Nodo();
-                    auxData = nodes.size() + 1;
+                    auxData = nodesArray.size() + 1;
                     nodeTemp.setX(e.getX());
                     nodeTemp.setY(e.getY());
                     nodeTemp.setDato(auxData);
                     nodeTemp.setNode(new Ellipse2D.Double(nodeTemp.getX() - 20, nodeTemp.getY() - 20, 40, 40));
-                    if(nodes.isEmpty()){
-                        nodes.add(nodeTemp);
+                    if(nodesArray.isEmpty()){
+                        nodesArray.add(nodeTemp);
                         isModified = true;
                         repaint();
                         return;
                     }
                     if(findNodo(e.getPoint()) == null){
-                        nodes.add(nodeTemp);
+                        nodesArray.add(nodeTemp);
                         isModified = true;
                         repaint();
                         return;
@@ -124,11 +124,11 @@ public class PintaGrafo extends JPanel{
                     aristaTemp.setOrigen(findNodo(lineArista.getP1()).getDato());
                     aristaTemp.setDestino(lineNodo.getDato());               
                     repaint();
-                    for(Arista aristaFor : aristas){
+                    for(Arista aristaFor : aristasArray){
                         if((aristaFor.getOrigen() == aristaTemp.getOrigen() && aristaFor.getDestino() == aristaTemp.getDestino()) || (!isDirectedM() && aristaFor.getOrigen() == aristaTemp.getDestino() && aristaFor.getDestino() == aristaTemp.getOrigen())){
                             int returnValue = JOptionPane.showOptionDialog(null, "Este camino ya existe\n ¿Quieres cambiar el valor del peso?", "WARNING",JOptionPane.WARNING_MESSAGE, 0, null, buttonsTemp, buttonsTemp[1]);
                             if(returnValue == JOptionPane.YES_OPTION){
-                                changePeso = aristas.indexOf(aristaFor);
+                                changePeso = aristasArray.indexOf(aristaFor);
                                 isModified = true;
                                 break;
                             }else{
@@ -148,10 +148,10 @@ public class PintaGrafo extends JPanel{
                             throw new NumberFormatException();
                         if(changePeso == -1){
                             aristaTemp.setPeso(Integer.parseInt(s));
-                            aristas.add(aristaTemp);
+                            aristasArray.add(aristaTemp);
                             isModified = true;
                         }else{
-                            aristas.get(changePeso).setPeso(Integer.parseInt(s));
+                            aristasArray.get(changePeso).setPeso(Integer.parseInt(s));
                             isModified = true;
                         }
                         lineArista = null;
@@ -169,7 +169,7 @@ public class PintaGrafo extends JPanel{
             }
             public void mousePressed(MouseEvent e1){
                 press=true;
-                if(!nodes.isEmpty())
+                if(!nodesArray.isEmpty())
                     if(findNodo(e1.getPoint()) != null)
                         auxDragged = findNodo(e1.getPoint()).getDato() - 1;
                     else
@@ -187,20 +187,20 @@ public class PintaGrafo extends JPanel{
                 int PromptResult = JOptionPane.showOptionDialog(null,"¿Desea eliminar el nodo " + nodePopUp + '?',"Grafos Otoño 2022",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
                 if(PromptResult != JOptionPane.YES_OPTION)
                     return;
-                for(int i = 0; i < aristas.size(); i++)
-                    if(aristas.get(i).getOrigen() == nodePopUp || aristas.get(i).getDestino() == nodePopUp){
-                        aristas.remove(i);
+                for(int i = 0; i < aristasArray.size(); i++)
+                    if(aristasArray.get(i).getOrigen() == nodePopUp || aristasArray.get(i).getDestino() == nodePopUp){
+                        aristasArray.remove(i);
                         i--;
                     }
-                nodes.remove(nodePopUp - 1);
-                for (Arista ar : aristas){
+                nodesArray.remove(nodePopUp - 1);
+                for (Arista ar : aristasArray){
                     if(ar.getOrigen() > nodePopUp)
                         ar.setOrigen(ar.getOrigen() - 1);
                     if(ar.getDestino() > nodePopUp)
                         ar.setDestino((ar.getDestino() - 1)); 
                 }
-                for(int i = nodePopUp - 1; i < nodes.size(); i++)
-                    nodes.get(i).setDato(nodes.get(i).getDato() - 1);
+                for(int i = nodePopUp - 1; i < nodesArray.size(); i++)
+                    nodesArray.get(i).setDato(nodesArray.get(i).getDato() - 1);
                 isModified = true;
                 repaint(); 
             }
@@ -209,7 +209,7 @@ public class PintaGrafo extends JPanel{
     }        
     
     public Nodo findNodo(Point2D point){
-        for (Nodo nodeFor : nodes) {
+        for (Nodo nodeFor : nodesArray) {
             Ellipse2D ellipseTemp = (Ellipse2D) nodeFor.getNode();
             if (ellipseTemp.contains(point)) 
                 return nodeFor;
@@ -238,11 +238,11 @@ public class PintaGrafo extends JPanel{
         g2.setRenderingHints(rh);
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 18));
         tx.setTransform(g2.getTransform());
-        if(nodes.isEmpty())
+        if(nodesArray.isEmpty())
             return;
-        for(Arista aristaFor : aristas){
+        for(Arista aristaFor : aristasArray){
             double dx, dy, angle;
-            aristaFor.setArista(new Line2D.Double(nodes.get(aristaFor.getOrigen() -1).getPunto(), nodes.get(aristaFor.getDestino() -1).getPunto()));
+            aristaFor.setArista(new Line2D.Double(nodesArray.get(aristaFor.getOrigen() -1).getPunto(), nodesArray.get(aristaFor.getDestino() -1).getPunto()));
             dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
             dy = aristaFor.getArista().getY2() - aristaFor.getArista().getY1();
             angle = Math.atan2(dy, dx);
@@ -274,7 +274,7 @@ public class PintaGrafo extends JPanel{
                 g2.setTransform(tx);  
             }
         }
-        for(Nodo nodeFor : nodes){
+        for(Nodo nodeFor : nodesArray){
             g2.setColor(Color.WHITE);
             g2.fill((Ellipse2D)nodeFor.getNode());
             g2.setColor(new Color(48, 71, 37));
@@ -301,7 +301,7 @@ public class PintaGrafo extends JPanel{
             g2.setStroke(new BasicStroke(1));
         }
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
-        for(Arista aristaFor : aristas){
+        for(Arista aristaFor : aristasArray){
             double dx, dy;
             dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
             dy = aristaFor.getArista().getY2() - aristaFor.getArista().getY1();
