@@ -312,13 +312,15 @@ public class GrafosOto22 extends JFrame {
                     costMatrixInit();
                     floydArray.clear();
 
-                    for (int i = 0; i < nodesArray.size(); i++)
+                    // for (int i = 0; i < nodesArray.size(); i++)
+                    //     floydArray.add(new double[nodesArray.size()][nodesArray.size()]);
+                        
+                    for (int i = 0; i < nodesArray.size(); i++){
                         floydArray.add(new double[nodesArray.size()][nodesArray.size()]);
-                    
-                    for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
                     for (int k = 0; k < nodesArray.size(); k++)
                         floydArray.get(i)[j][k] = costMatrix[j][k];
+                    }
 
                     for (int k = 0; k < nodesArray.size(); k++){
                     for (int j = 0; j < nodesArray.size(); j++)
@@ -409,10 +411,10 @@ public class GrafosOto22 extends JFrame {
                         for (int i = aristasArray.indexOf(aristaFor) + 1; i < aristasArray.size(); i++)
                             if (aristaFor.getOrigen() == aristasArray.get(i).getDestino() && aristaFor.getDestino() == aristasArray.get(i).getOrigen()) {
                                 int selectedOptionTemp = JOptionPane.showConfirmDialog(null, "Esta acción eliminará al menos un camino \n¿Desea continuar?", "Grafos Otoño 2022", JOptionPane.YES_NO_CANCEL_OPTION, JOptionPane.WARNING_MESSAGE);
-                                if (selectedOptionTemp == JOptionPane.CANCEL_OPTION || selectedOptionTemp == JOptionPane.NO_OPTION)
+                                if (selectedOptionTemp != JOptionPane.YES_OPTION)
                                     return;
-                                if (selectedOptionTemp == JOptionPane.YES_OPTION)
-                                    break outerloop;
+                                modifiedAtomBool.set(true);
+                                break outerloop;
                             }
                         }
 
@@ -426,6 +428,7 @@ public class GrafosOto22 extends JFrame {
                     dijkstraItem.setEnabled(false);
                     floydItem.setEnabled(false);
                     warshallItem.setEnabled(false);
+                    modifiedAtomBool.set(true);
                     panelGraph.repaint();
                 }
             });
