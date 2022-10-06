@@ -8,6 +8,9 @@ public class Arista {
     private int peso, Origen, Destino;
 
     public Line2D getArista() {
+        if(arista == null)
+            arista = new Line2D.Double(0, 0, 0, 0);
+        
         return arista;
     }
     public void setArista(Line2D arista) {
