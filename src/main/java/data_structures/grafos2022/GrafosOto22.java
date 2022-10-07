@@ -21,6 +21,7 @@ public class GrafosOto22 extends JFrame {
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
     private ArrayList<double[][]> floydArray;
+    private ArrayList<boolean[][]> warshallArray;
     private PintaGrafo panelGraph;
     private AtomicBoolean directedAtBool, modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
@@ -51,6 +52,7 @@ public class GrafosOto22 extends JFrame {
             nodesArray = new ArrayList<Nodo>();
             aristasArray = new ArrayList<Arista>();
             floydArray = new ArrayList<double[][]>();
+            warshallArray = new ArrayList<boolean[][]>();
             directedAtBool = new AtomicBoolean(true);
             modifiedAtomBool = new AtomicBoolean(false);
             panelGraph = new PintaGrafo(nodesArray, aristasArray, directedAtBool);
@@ -310,18 +312,14 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
+                    matrixItem.doClick();
                     floydArray.clear();
-
-                    // for (int i = 0; i < nodesArray.size(); i++)
-                    //     floydArray.add(new double[nodesArray.size()][nodesArray.size()]);
-                        
                     for (int i = 0; i < nodesArray.size(); i++){
                         floydArray.add(new double[nodesArray.size()][nodesArray.size()]);
                     for (int j = 0; j < nodesArray.size(); j++)
                     for (int k = 0; k < nodesArray.size(); k++)
                         floydArray.get(i)[j][k] = costMatrix[j][k];
                     }
-
                     for (int k = 0; k < nodesArray.size(); k++){
                     for (int j = 0; j < nodesArray.size(); j++)
                     for (int i = 0; i < nodesArray.size(); i++)
@@ -330,7 +328,7 @@ public class GrafosOto22 extends JFrame {
                             floydArray.get(h)[i][j] = floydArray.get(h)[i][k] + floydArray.get(h)[k][j];
                     }
                     
-                    areaTArea.setText("Floyd: \n");
+                    areaTArea.append("Floyd: \n");
                     for (int aux = 0; aux < floydArray.size(); aux++) {
                         areaTArea.append("Step " + (aux + 1) + ": \n ");
                         for (Nodo nodeFor : nodesArray) {
@@ -364,32 +362,38 @@ public class GrafosOto22 extends JFrame {
                     }
                     
                     costMatrixInit();
-                    boolean warshallTemp[][] = new boolean[nodesArray.size()][nodesArray.size()];
 
-                    for (int i = 0; i < nodesArray.size(); i++)
+                    for (int i = 0; i < nodesArray.size(); i++){
+                        warshallArray.add(new boolean[nodesArray.size()][nodesArray.size()]);
                     for (int j = 0; j < nodesArray.size(); j++)
-                        warshallTemp[i][j] = costMatrix[i][j] > 0 && costMatrix[i][j] != Double.POSITIVE_INFINITY;
-
+                    for (int k = 0; k < nodesArray.size(); k++)
+                        warshallArray.get(i)[j][k] = costMatrix[j][k] > 0 && costMatrix[j][k] != Double.POSITIVE_INFINITY;
+                    }
                     for (int k = 0; k < nodesArray.size(); k++)
                     for (int i = 0; i < nodesArray.size(); i++)
                     for (int j = 0; j < nodesArray.size(); j++)
-                        warshallTemp[i][j] = warshallTemp[i][j] || (warshallTemp[i][k] && warshallTemp[k][j]);
+                        if(!warshallArray.get(k)[i][j])
+                            for(int h = k; h < nodesArray.size(); h++)
+                            warshallArray.get(h)[i][j] = warshallArray.get(h)[i][k] && warshallArray.get(h)[k][j];
 
-                    areaTArea.append("\nWarshall: \n ");
-
-                    for (Nodo nodeFor : nodesArray) {
-                        printing = String.format(formating, nodeFor.getDato());
-                        areaTArea.append(printing);
-                    }
-                    areaTArea.append("\n");
-                    for (int i = 0; i < nodesArray.size(); i++) {
-                        areaTArea.append("" + (i + 1));
-                        for (int j = 0; j < nodesArray.size(); j++) {
-                            printing = String.format(formating, warshallTemp[i][j] ? 1 : 0);
+                    areaTArea.append("\nWarshall: \n");
+                    for(int warshInt = 0; warshInt < nodesArray.size(); warshInt++){
+                        areaTArea.append("Step "+ (warshInt + 1) + ":\n ");
+                        for (Nodo nodeFor : nodesArray) {
+                            printing = String.format(formating, nodeFor.getDato());
                             areaTArea.append(printing);
                         }
                         areaTArea.append("\n");
-                    }
+                        for (int i = 0; i < nodesArray.size(); i++) {
+                            areaTArea.append("" + (i + 1));
+                            for (int j = 0; j < nodesArray.size(); j++) {
+                                printing = String.format(formating, warshallArray.get(warshInt)[i][j] ? 1 : 0);
+                                areaTArea.append(printing);
+                            }
+                            areaTArea.append("\n");
+                        }
+                    }//pag 217 búsqueda en profundidad && búsqueda por niveles
+                    //Exercices 6.1, 6.4, 6.6, 6.7 pag 226, 227
                     areaTArea.append("\n");
                 }
             });
