@@ -129,6 +129,13 @@ public class PintaGrafo extends JPanel{
                     Arista aristaTemp = new Arista();
                     String[] buttonsTemp = { "Sí","No"}; 
                     int changePeso = -1;
+                    if(findNodo(e.getPoint()) == findNodo(lineArista.getP1())){
+                        lineArista = null;
+                        lineNodo = null;
+                        creatingArista = false;
+                        repaint();   
+                        return;
+                    }
                     lineNodo = findNodo(e.getPoint());
                     lineArista.setLine(lineArista.getP1(), lineNodo.getPunto());
                     aristaTemp.setOrigen(findNodo(lineArista.getP1()).getDato());
