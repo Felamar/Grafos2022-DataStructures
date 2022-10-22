@@ -46,5 +46,8 @@ public class Nodo {
         this.punto = new Point(x,y);
         return punto;
     }
-
+    public void setCoords(int x1, int y1){
+        setX(x1);
+        setY(y1);
+    }
 }

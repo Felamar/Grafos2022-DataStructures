@@ -10,15 +10,13 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
-import java.util.Stack;
 import java.util.List;
-import java.util.Arrays;
 import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.UIManager;
 
 public class GrafosOto22 extends JFrame {
     // Declaración
     private double costMatrix[][];
+    private boolean directed;
     private File fileSelected;
     private String formatting;
     private String printing;
@@ -28,7 +26,7 @@ public class GrafosOto22 extends JFrame {
     private ArrayList<boolean[][]> warshallArray;
     private HashMap<Integer, List<Integer>> paths;
     private PintaGrafo panelGraph;
-    private AtomicBoolean directedAtBool, modifiedAtomBool;
+    private AtomicBoolean modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
     private JLabel aristasLabel, nodo1Label, nodo2Label, pesoLabel;
     private JButton createAristaB, eraseNodeB;
@@ -50,6 +48,7 @@ public class GrafosOto22 extends JFrame {
         // InitComp
         {
             setLayout(null);
+            directed = true;
             fileSelected = null;
             formatting = "%4d";
             nodesArray = new ArrayList<Nodo>();
@@ -57,9 +56,8 @@ public class GrafosOto22 extends JFrame {
             floydArray = new ArrayList<double[][]>();
             warshallArray = new ArrayList<boolean[][]>();
             paths = new HashMap<Integer, List<Integer>>();
-            directedAtBool = new AtomicBoolean(true);
             modifiedAtomBool = new AtomicBoolean(false);
-            panelGraph = new PintaGrafo(nodesArray, aristasArray, directedAtBool);
+            panelGraph = new PintaGrafo(nodesArray, aristasArray);
 
             menuBar = new JMenuBar();
             fileMenu = new JMenu("Archivo");
@@ -286,8 +284,12 @@ public class GrafosOto22 extends JFrame {
                             bpfMethod(visited, i); 
                     for (Integer v : paths.keySet()) {
                         areaTArea.append(v + "->" + paths.get(v) + "\n");
-                    }                    
+                    }       
+                    BPFWindow bpfFrame = new BPFWindow(paths);
+                    bpfFrame.setVisible(true);
+
                 }
+                
             });
             
             dijkstraItem.addActionListener(new ActionListener() {
@@ -425,7 +427,8 @@ public class GrafosOto22 extends JFrame {
             
             dirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    directedAtBool.set(true);
+                    directed = true;
+                    panelGraph.setDirected(directed);
                     dijkstraItem.setEnabled(true);
                     floydItem.setEnabled(true);
                     warshallItem.setEnabled(true);
@@ -454,7 +457,8 @@ public class GrafosOto22 extends JFrame {
                                 aristasArray.remove(i);
                         
                     }
-                    directedAtBool.set(false);
+                    directed = false;
+                    panelGraph.setDirected(directed);
                     dijkstraItem.setEnabled(false);
                     floydItem.setEnabled(false);
                     warshallItem.setEnabled(false);
@@ -656,7 +660,7 @@ public class GrafosOto22 extends JFrame {
         if(aristasArray.isEmpty())
             return;
         //Inicializar matriz de costos grafos dirigidos
-        if(directedAtBool.get()){
+        if(directed){
         for (Arista aristaFor : aristasArray)
             costMatrix[aristaFor.getOrigen() - 1][aristaFor.getDestino() - 1] = aristaFor.getPeso();
             return;

@@ -5,27 +5,25 @@ import java.awt.*;
 import java.awt.event.*;
 import java.awt.geom.*;
 import java.util.ArrayList;
-import java.util.concurrent.atomic.AtomicBoolean;
-
 
 public class PintaGrafo extends JPanel{
 
     private int auxData, auxDragged, nodePopUp, aristaPopUp = -1;
     private boolean press = false, isModified = false, creatingArista = false;
-    private AtomicBoolean isDirected;
+    private boolean isDirected;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
     private Nodo lineNodo;
     private Line2D lineArista;
     private Polygon arrowHead, lineArrow;
     private JPopupMenu popupMenu;
-    private JMenuItem ereaseItem;
+    private JMenuItem eraseItem;
 
-    public PintaGrafo(ArrayList<Nodo> nodo, ArrayList<Arista> arista, AtomicBoolean isDirected){
+    public PintaGrafo(ArrayList<Nodo> nodo, ArrayList<Arista> arista){
         setBackground(new Color(146, 222, 113));
         this.nodesArray = nodo;
         this.aristasArray = arista;
-        this.isDirected = isDirected;
+        isDirected = true;
         lineNodo = null;
         lineArista = null;
         arrowHead = new Polygon(); 
@@ -39,8 +37,8 @@ public class PintaGrafo extends JPanel{
         lineArrow.addPoint( 0, -15);
         lineArrow.addPoint( 7, -20);
         popupMenu = new JPopupMenu();
-        ereaseItem = new JMenuItem("Borrar");
-        popupMenu.add(ereaseItem);
+        eraseItem = new JMenuItem("Borrar");
+        popupMenu.add(eraseItem);
         
         //ActionListeners
         
@@ -198,7 +196,7 @@ public class PintaGrafo extends JPanel{
 
         });
     
-        ereaseItem.addActionListener(new ActionListener(){
+        eraseItem.addActionListener(new ActionListener(){
             public void actionPerformed(ActionEvent e){
                 String ObjButtons[] = {"Sí","No"};
                 int PromptResult = JOptionPane.showOptionDialog(null,"¿Desea eliminar el " + (aristaPopUp >= 0 ? "arista" : "nodo"), "Grafos Otoño 2022",JOptionPane.DEFAULT_OPTION,JOptionPane.WARNING_MESSAGE,null,ObjButtons,ObjButtons[1]);
@@ -259,8 +257,11 @@ public class PintaGrafo extends JPanel{
         this.isModified = isModified;
     }
 
+    public void setDirected(boolean d){
+        isDirected = d;
+    }
     public boolean isDirectedM(){
-        return isDirected.get();
+        return isDirected;
     }
 
     public void paintComponent(Graphics g){
@@ -300,7 +301,7 @@ public class PintaGrafo extends JPanel{
                 g2.setStroke(new BasicStroke(1));
             }
 
-            if(isDirected.get()){
+            if(isDirected){
                 g2.setColor(new Color(58, 138, 153));
                 g2.translate(aristaFor.getArista().getX2(), aristaFor.getArista().getY2());
                 g2.rotate((angle-Math.PI/2d));  
@@ -320,7 +321,7 @@ public class PintaGrafo extends JPanel{
             g2.setColor(new Color(62, 169, 189));
             g2.setStroke(new BasicStroke(2));
             g2.draw(lineArista);
-            if(isDirected.get()){
+            if(isDirected){
                 double dx, dy, angle;
                 dx = lineArista.getX2() - lineArista.getX1();
                 dy = lineArista.getY2() - lineArista.getY1();
@@ -340,7 +341,7 @@ public class PintaGrafo extends JPanel{
             dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
             dy = aristaFor.getArista().getY2() - aristaFor.getArista().getY1();
             g2.setColor(new Color(17, 105, 115)); 
-            if(!isDirected.get()){
+            if(!isDirected){
                 dx = dx * 9 / 4;
                 dy = dy * 9 / 4;
             }
