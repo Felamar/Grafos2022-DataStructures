@@ -5,10 +5,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
+import java.util.Stack;
+import java.util.List;
+import java.util.Arrays;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.UIManager;
 
@@ -16,23 +20,24 @@ public class GrafosOto22 extends JFrame {
     // Declaración
     private double costMatrix[][];
     private File fileSelected;
-    private String formating;
+    private String formatting;
     private String printing;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
     private ArrayList<double[][]> floydArray;
     private ArrayList<boolean[][]> warshallArray;
+    private HashMap<Integer, List<Integer>> paths;
     private PintaGrafo panelGraph;
     private AtomicBoolean directedAtBool, modifiedAtomBool;
     private JTextField nodeOriTField, nodeDestTField, pesoTField;
     private JLabel aristasLabel, nodo1Label, nodo2Label, pesoLabel;
-    private JButton createAristaB, ereaseNodeB;
+    private JButton createAristaB, eraseNodeB;
     private JTextArea areaTArea;
     private JScrollPane areaScrollPane;
     private JMenuBar menuBar;
     private JMenu fileMenu, graphMenu, diagramMenu;
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem,
-            floydItem, warshallItem;
+            floydItem, warshallItem, bpfItem;
 
     GrafosOto22() {
         setSize(1300,700);
@@ -46,11 +51,12 @@ public class GrafosOto22 extends JFrame {
         {
             setLayout(null);
             fileSelected = null;
-            formating = "%4d";
+            formatting = "%4d";
             nodesArray = new ArrayList<Nodo>();
             aristasArray = new ArrayList<Arista>();
             floydArray = new ArrayList<double[][]>();
             warshallArray = new ArrayList<boolean[][]>();
+            paths = new HashMap<Integer, List<Integer>>();
             directedAtBool = new AtomicBoolean(true);
             modifiedAtomBool = new AtomicBoolean(false);
             panelGraph = new PintaGrafo(nodesArray, aristasArray, directedAtBool);
@@ -70,6 +76,8 @@ public class GrafosOto22 extends JFrame {
             dijkstraItem = new JMenuItem("Dijkstra");
             floydItem = new JMenuItem("Floyd");
             warshallItem = new JMenuItem("Warshall");
+            bpfItem = new JMenuItem("BPF");
+
             aristasLabel = new JLabel("ARISTAS");
             nodo1Label = new JLabel("Origen (nodo1Label)");
             nodo2Label = new JLabel("Destino (nodo2Label)");
@@ -79,7 +87,7 @@ public class GrafosOto22 extends JFrame {
             nodeDestTField = new JTextField();
             pesoTField = new JTextField();
             createAristaB = new JButton("Crear Arista");
-            ereaseNodeB = new JButton("Borrar Nodo");
+            eraseNodeB = new JButton("Borrar Nodo");
 
             areaTArea = new JTextArea();
             areaTArea.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 15));
@@ -98,6 +106,8 @@ public class GrafosOto22 extends JFrame {
             graphMenu.add(nondirItem);
             menuBar.add(graphMenu);
             diagramMenu.add(matrixItem);
+            diagramMenu.addSeparator();
+            diagramMenu.add(bpfItem);
             diagramMenu.addSeparator();
             diagramMenu.add(dijkstraItem);
             diagramMenu.add(floydItem);
@@ -123,9 +133,9 @@ public class GrafosOto22 extends JFrame {
             add(pesoTField);
             createAristaB.setBounds(20, 110, 110, 25);
             add(createAristaB);
-            ereaseNodeB.setBounds(140, 110, 110, 25);
-            ereaseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
-            add(ereaseNodeB);
+            eraseNodeB.setBounds(140, 110, 110, 25);
+            eraseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
+            add(eraseNodeB);
             areaScrollPane.setBounds(1, 150, 270, 510);
             add(areaScrollPane);
         }
@@ -190,7 +200,7 @@ public class GrafosOto22 extends JFrame {
                 }
             });
 
-            ereaseNodeB.addActionListener(new ActionListener() {
+            eraseNodeB.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if(nodesArray.isEmpty()){
                         JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
@@ -240,7 +250,7 @@ public class GrafosOto22 extends JFrame {
                     costMatrixInit();
                     areaTArea.setText("Matriz de costo:\n ");
                     for (Nodo nodeFor : nodesArray) {
-                        printing = String.format(formating, nodeFor.getDato());
+                        printing = String.format(formatting, nodeFor.getDato());
                         areaTArea.append(printing);
                     }
                     areaTArea.append("\n");
@@ -248,11 +258,11 @@ public class GrafosOto22 extends JFrame {
                         areaTArea.append("" + (i + 1));
                         for (int j = 0; j < nodesArray.size(); j++) {
                             if (costMatrix[i][j] == Double.POSITIVE_INFINITY) {
-                                formating = "%3s";
-                                printing = String.format(formating, '\u221e');
-                                formating = "%4d";
+                                formatting = "%3s";
+                                printing = String.format(formatting, '\u221e');
+                                formatting = "%4d";
                             } else
-                                printing = String.format(formating, (long) costMatrix[i][j]);
+                                printing = String.format(formatting, (long) costMatrix[i][j]);
                             areaTArea.append(printing);
                         }
                         areaTArea.append("\n");
@@ -260,7 +270,26 @@ public class GrafosOto22 extends JFrame {
                     areaTArea.append("\n");
                 }
             });
-
+            
+            bpfItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    paths.clear();
+                    if (nodesArray.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    boolean[] visited = new boolean[nodesArray.size()];
+                    for (boolean v : visited) 
+                        v = false;
+                    for (int i = 0; i < nodesArray.size(); i++)
+                        if(!visited[i])
+                            bpfMethod(visited, i); 
+                    for (Integer v : paths.keySet()) {
+                        areaTArea.append(v + "->" + paths.get(v) + "\n");
+                    }                    
+                }
+            });
+            
             dijkstraItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     if (nodesArray.isEmpty()) {
@@ -328,7 +357,7 @@ public class GrafosOto22 extends JFrame {
                     for (int aux = 0; aux < floydArray.size(); aux++) {
                         areaTArea.append("Step " + (aux + 1) + ": \n ");
                         for (Nodo nodeFor : nodesArray) {
-                            printing = String.format(formating, nodeFor.getDato());
+                            printing = String.format(formatting, nodeFor.getDato());
                             areaTArea.append(printing);
                         }
                         areaTArea.append("\n");
@@ -336,11 +365,11 @@ public class GrafosOto22 extends JFrame {
                             areaTArea.append("" + (i + 1));
                             for (int j = 0; j < nodesArray.size(); j++) {
                                 if (floydArray.get(aux)[i][j] == Double.POSITIVE_INFINITY) {
-                                    formating = "%3s";
-                                    printing = String.format(formating, '\u221e');
-                                    formating = "%4d";
+                                    formatting = "%3s";
+                                    printing = String.format(formatting, '\u221e');
+                                    formatting = "%4d";
                                 } else
-                                    printing = String.format(formating, (long) floydArray.get(aux)[i][j]);
+                                    printing = String.format(formatting, (long) floydArray.get(aux)[i][j]);
                                 areaTArea.append(printing);
                             }
                             areaTArea.append("\n");
@@ -376,14 +405,14 @@ public class GrafosOto22 extends JFrame {
                     for(int warshInt = 0; warshInt < nodesArray.size(); warshInt++){
                         areaTArea.append("Step "+ (warshInt + 1) + ":\n ");
                         for (Nodo nodeFor : nodesArray) {
-                            printing = String.format(formating, nodeFor.getDato());
+                            printing = String.format(formatting, nodeFor.getDato());
                             areaTArea.append(printing);
                         }
                         areaTArea.append("\n");
                         for (int i = 0; i < nodesArray.size(); i++) {
                             areaTArea.append("" + (i + 1));
                             for (int j = 0; j < nodesArray.size(); j++) {
-                                printing = String.format(formating, warshallArray.get(warshInt)[i][j] ? 1 : 0);
+                                printing = String.format(formatting, warshallArray.get(warshInt)[i][j] ? 1 : 0);
                                 areaTArea.append(printing);
                             }
                             areaTArea.append("\n");
@@ -393,6 +422,7 @@ public class GrafosOto22 extends JFrame {
                     areaTArea.append("\n");
                 }
             });
+            
             dirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     directedAtBool.set(true);
@@ -517,9 +547,9 @@ public class GrafosOto22 extends JFrame {
 
                     try {
                         File tempFile = fChooser.getSelectedFile();
-                        FileWriter fileWriterTemp = new FileWriter(tempFile);
                         if (!tempFile.getName().endsWith(".txt"))
                             tempFile = new File(tempFile.getAbsolutePath() + ".txt");
+                        FileWriter fileWriterTemp = new FileWriter(tempFile);
                         fileSelected = tempFile;
                         for (Nodo nodeFor : nodesArray)
                             fileWriterTemp.append("n " + nodeFor.getX() + " " + nodeFor.getY() + " " + nodeFor.getDato() + '\n');
@@ -616,7 +646,7 @@ public class GrafosOto22 extends JFrame {
 
     public void costMatrixInit() {
         costMatrix = new double[nodesArray.size()][nodesArray.size()];
-
+        // Inicializar matriz de costos
         for (int i = 0; i < nodesArray.size(); i++)
             for (int j = 0; j < nodesArray.size(); j++) 
                 costMatrix[i][j] = Double.POSITIVE_INFINITY;
@@ -625,31 +655,34 @@ public class GrafosOto22 extends JFrame {
 
         if(aristasArray.isEmpty())
             return;
-        
+        //Inicializar matriz de costos grafos dirigidos
         if(directedAtBool.get()){
-            for (int i = 0; i < nodesArray.size(); i++)
-            for (int j = 0; j < nodesArray.size(); j++) 
-            for (Arista aristaFor : aristasArray) 
-                if (aristaFor.getOrigen() == nodesArray.get(i).getDato() && aristaFor.getDestino() == nodesArray.get(j).getDato()) {
-                    costMatrix[i][j] = (double) aristaFor.getPeso();
-                    break;
-                }
-            for (int i = 0; i < nodesArray.size(); i++)
-                costMatrix[i][i] = 0;
+        for (Arista aristaFor : aristasArray)
+            costMatrix[aristaFor.getOrigen() - 1][aristaFor.getDestino() - 1] = aristaFor.getPeso();
             return;
+        }else
+        //Inicializar matriz de costos grafos no dirigidos
+        for (Arista aristaFor : aristasArray) {
+            costMatrix[aristaFor.getOrigen() - 1][aristaFor.getDestino() - 1] = aristaFor.getPeso();
+            costMatrix[aristaFor.getDestino() - 1][aristaFor.getOrigen() - 1] = aristaFor.getPeso();
         }
+    }
 
-        for (int i = 0; i < nodesArray.size(); i++)
-        for (int j = 0; j < i; j++) 
-        for (Arista aristaFor : aristasArray) 
-            if ((aristaFor.getOrigen() == nodesArray.get(i).getDato() && aristaFor.getDestino() == nodesArray.get(j).getDato()) || (aristaFor.getOrigen() == nodesArray.get(j).getDato() && aristaFor.getDestino() == nodesArray.get(i).getDato())) {
-                costMatrix[i][j] = (double) aristaFor.getPeso();
-                costMatrix[j][i] = (double) aristaFor.getPeso();
-                break;
+    public void bpfMethod(boolean[] visited, int vertex){
+        costMatrixInit();
+        //Búsqueda en profundidad
+        ArrayList<Integer> L = new ArrayList<Integer>();
+        paths.put(vertex + 1, new ArrayList<Integer>());
+        for(int i = 0; i < nodesArray.size(); i++)
+            if(costMatrix[vertex][i] != Double.POSITIVE_INFINITY && vertex != i){
+                L.add(i);
+                paths.get(vertex + 1).add(i + 1);
             }
-        for (int i = 0; i < nodesArray.size(); i++)
-            costMatrix[i][i] = 0;
-
+        visited[vertex] = true;
+        for (Integer w : L) {
+            if(!visited[w])
+                bpfMethod(visited, w);           
+        }
     }
 
     public void resetTextFields(){
