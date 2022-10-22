@@ -4,7 +4,7 @@ import java.awt.geom.*;
 import java.awt.*;
 
 public class Nodo {
-    private int Dato, x, y;
+    private int Dato, x = 0, y = 0;
     private Ellipse2D node = null;
     private Point punto;
     
@@ -45,9 +45,5 @@ public class Nodo {
     public Point getPunto() {
         this.punto = new Point(x,y);
         return punto;
-    }
-    public void setCoords(int x1, int y1){
-        setX(x1);
-        setY(y1);
     }
 }

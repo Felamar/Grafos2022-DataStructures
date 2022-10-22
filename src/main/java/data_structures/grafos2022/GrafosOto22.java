@@ -277,9 +277,10 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     boolean[] visited = new boolean[nodesArray.size()];
-                    for (boolean v : visited) 
-                        v = false;
-                    for (int i = 0; i < nodesArray.size(); i++)
+                    for (int i = 0; i < visited.length; i++) {
+                        visited[i] = false;
+                    }
+                    for (int i = 0; i < visited.length; i++)
                         if(!visited[i])
                             bpfMethod(visited, i); 
                     for (Integer v : paths.keySet()) {

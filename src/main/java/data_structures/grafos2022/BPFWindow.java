@@ -1,63 +1,73 @@
 package data_structures.grafos2022;
 
 import javax.swing.JFrame;
+import java.awt.event.*;
 import java.util.*;
-import java.util.ArrayList;
 
 public class BPFWindow extends JFrame {
     private HashMap<Integer, List<Integer>> paths;
     private Set<Integer> visited;
     private ArrayList<Nodo> nodes;
+    ArrayList<Integer> toVisit;
     private ArrayList<Arista> aristArray;
     private PintaGrafo panel;
+    private int xc = 0, yc = 50;
 
     BPFWindow(HashMap<Integer, List<Integer>> map){
-        setSize(1000,700);
+        setSize(1200,700);
         setLocation(50,50);
         setTitle("Búsqueda en Profundidad");
         paths = map;
         visited = new HashSet<>();
+        toVisit = new ArrayList<>(paths.keySet());
         nodes = new ArrayList<Nodo>();
         aristArray = new ArrayList<Arista>();
         panel = new PintaGrafo(nodes, aristArray);
         panel.setBounds(getBounds());
         add(panel);
+
         for(int i = 1; i <= paths.size(); i++){
             Nodo nTemp = new Nodo();
             nTemp.setDato(i);
             nodes.add(nTemp);
         }
-        bpfMethod(5);
+       
+        while(!toVisit.isEmpty()){
+            bpfMethod(toVisit.get(0));
+            toVisit.removeAll(visited);
+            xc += 400;
+            yc = 50;
+        }
         panel.repaint();
-        setDefaultCloseOperation(EXIT_ON_CLOSE);
+        addWindowListener(new WindowAdapter() {
+            public void windowClosing(WindowEvent ev) {
+                dispose();
+            }
+        });
     }
-
     private void bpfMethod(int v){
         List<Integer> nexTemp;
         visited.add(v);
-        if(v == 1){
-            nodes.get(v - 1).setX(250);
-            nodes.get(v - 1).setY(50);
+        if(v == toVisit.get(0)){
+            nodes.get(v - 1).setX(200 + xc);
+            nodes.get(v - 1).setY(yc);
         }
+        yc+=100;
         nexTemp = paths.get(v);
 
         for(int w = 0; w < nexTemp.size(); w++){
-            if(!visited.contains(nexTemp.get(w))){
-                nodes.get(nexTemp.get(w)-1).setX(500 / ((visited.size() + 1)*nexTemp.size()));
-                nodes.get(nexTemp.get(w)-1).setY(700 * visited.size() / nodes.size() + 50);
-                Arista aTemp = new Arista();
-                aTemp.setOrigen(v);
-                aTemp.setDestino(nexTemp.get(w));
-                aTemp.setPeso(1);
-                aristArray.add(aTemp);
-                bpfMethod(nexTemp.get(w));
-            }else{
-                Arista aTemp = new Arista();
-                aTemp.setOrigen(v);
-                aTemp.setDestino(nexTemp.get(w));
-                aTemp.setPeso(1);
-                aristArray.add(aTemp);
+            if(!visited.contains(nexTemp.get(w)) && nodes.get(nexTemp.get(w)-1).getX() == 0){
+                nodes.get(nexTemp.get(w)-1).setX(400 * (w + 1) / (nexTemp.size() + 1) + xc);
+                nodes.get(nexTemp.get(w)-1).setY(yc);   
             }
+            Arista aTemp = new Arista();
+            aTemp.setOrigen(v);
+            aTemp.setDestino(nexTemp.get(w));
+            aTemp.setPeso(1);
+            aristArray.add(aTemp);
         }
+        for (Integer w : nexTemp) 
+            if(!visited.contains(w)) bpfMethod(w);
+        
     }
 }
