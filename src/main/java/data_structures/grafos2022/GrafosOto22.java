@@ -35,10 +35,8 @@ public class GrafosOto22 extends JFrame {
             floydItem, warshallItem;
 
     GrafosOto22() {
-        setSize(1500, 950);
-        setLocation(50, 50);
-        // setSize(1300,700);
-        // setLocation(10,10);
+        setSize(1300,700);
+        setLocation(10,10);
         setTitle("Grafos Otoño 2022");
         initComponentes();
     }
@@ -107,8 +105,7 @@ public class GrafosOto22 extends JFrame {
             menuBar.add(diagramMenu);
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
-            panelGraph.setBounds(270, 25, 1215, 900);
-            // panelGraph.setBounds(270, 25, 1015, 650);
+            panelGraph.setBounds(270, 25, 1015, 650);
             add(panelGraph);
             aristasLabel.setBounds(20, 25, 150, 25);
             add(aristasLabel);
@@ -129,8 +126,7 @@ public class GrafosOto22 extends JFrame {
             ereaseNodeB.setBounds(140, 110, 110, 25);
             ereaseNodeB.setToolTipText("Borrar el nodo Origen (nodo1Label)");
             add(ereaseNodeB);
-            areaScrollPane.setBounds(1, 150, 270, 760);
-            // areaScrollPane.setBounds(1, 150, 270, 510);
+            areaScrollPane.setBounds(1, 150, 270, 510);
             add(areaScrollPane);
         }
 
