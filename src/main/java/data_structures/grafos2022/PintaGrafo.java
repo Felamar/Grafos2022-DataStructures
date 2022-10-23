@@ -9,8 +9,7 @@ import java.util.ArrayList;
 public class PintaGrafo extends JPanel{
 
     private int auxData, auxDragged, nodePopUp, aristaPopUp = -1;
-    private boolean press = false, isModified = false, creatingArista = false;
-    private boolean isDirected;
+    private boolean press = false, isModified = false, creatingArista = false, isDirected = true, isBPF = false;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
     private Nodo lineNodo;
@@ -23,25 +22,24 @@ public class PintaGrafo extends JPanel{
         setBackground(new Color(146, 222, 113));
         this.nodesArray = nodo;
         this.aristasArray = arista;
-        isDirected = true;
         lineNodo = null;
         lineArista = null;
         arrowHead = new Polygon(); 
-        arrowHead.addPoint( 0, -19);
-        arrowHead.addPoint( -7, -39);
-        arrowHead.addPoint( 0, -35);
-        arrowHead.addPoint( 7, -39);
+        arrowHead.addPoint( 0, -20);
+        arrowHead.addPoint( -6, -35);
+        arrowHead.addPoint( 0, -30);
+        arrowHead.addPoint( 6, -35);
         lineArrow = new Polygon(); 
-        lineArrow.addPoint( 0, 0);
-        lineArrow.addPoint( -7, -20);
-        lineArrow.addPoint( 0, -15);
-        lineArrow.addPoint( 7, -20);
+        lineArrow.addPoint(0, 0);
+        lineArrow.addPoint(-6, -15);
+        lineArrow.addPoint(0, -10);
+        lineArrow.addPoint(6, -15);
         popupMenu = new JPopupMenu();
         eraseItem = new JMenuItem("Borrar");
         popupMenu.add(eraseItem);
         
         //ActionListeners
-        
+
         addMouseMotionListener(new MouseMotionAdapter(){
             public void mouseMoved(MouseEvent e){
                 if(nodesArray.isEmpty())
@@ -140,7 +138,7 @@ public class PintaGrafo extends JPanel{
                     aristaTemp.setDestino(lineNodo.getDato());               
                     repaint();
                     for(Arista aristaFor : aristasArray){
-                        if((aristaFor.getOrigen() == aristaTemp.getOrigen() && aristaFor.getDestino() == aristaTemp.getDestino()) || (!isDirectedM() && aristaFor.getOrigen() == aristaTemp.getDestino() && aristaFor.getDestino() == aristaTemp.getOrigen())){
+                        if((aristaFor.getOrigen() == aristaTemp.getOrigen() && aristaFor.getDestino() == aristaTemp.getDestino()) || (!isDirected && aristaFor.getOrigen() == aristaTemp.getDestino() && aristaFor.getDestino() == aristaTemp.getOrigen())){
                             int returnValue = JOptionPane.showOptionDialog(null, "Este camino ya existe\n ¿Quieres cambiar el valor del peso?", "WARNING",JOptionPane.WARNING_MESSAGE, 0, null, buttonsTemp, buttonsTemp[1]);
                             if(returnValue == JOptionPane.YES_OPTION){
                                 changePeso = aristasArray.indexOf(aristaFor);
@@ -228,7 +226,7 @@ public class PintaGrafo extends JPanel{
                 repaint(); 
             }
         });
-    
+        
     }        
     
     public Nodo findNodo(Point2D point){
@@ -260,13 +258,14 @@ public class PintaGrafo extends JPanel{
     public void setDirected(boolean d){
         isDirected = d;
     }
-    public boolean isDirectedM(){
-        return isDirected;
+
+    public void setBPF(boolean b){
+        isBPF = b;
     }
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        int dxArc , dyArc;
+        // int dxArc , dyArc;
         Graphics2D g2 = (Graphics2D)g;
         AffineTransform tx = new AffineTransform();
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -276,32 +275,34 @@ public class PintaGrafo extends JPanel{
         if(nodesArray.isEmpty())
             return;
         for(Arista aristaFor : aristasArray){
-            double dx, dy, angle;
             aristaFor.setArista(new Line2D.Double(nodesArray.get(aristaFor.getOrigen() -1).getPunto(), nodesArray.get(aristaFor.getDestino() -1).getPunto()));
-            dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
-            dy = aristaFor.getArista().getY2() - aristaFor.getArista().getY1();
-            angle = Math.atan2(dy, dx);
             g2.setColor(new Color(62, 169, 189));
-            g2.setStroke(new BasicStroke(2));
+            if(isBPF && aristaFor.getOrigen() > aristaFor.getDestino())
+                g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,0, new float[]{5}, 0));
+            else
+                g2.setStroke(new BasicStroke(2));
+            
             g2.draw((Line2D)aristaFor.getArista());
             g2.setStroke(new BasicStroke(1));
-            if(aristaFor.getOrigen() == aristaFor.getDestino()){
-                if(aristaFor.getArista().getX1() >= this.getWidth() / 2){
-                    dxArc = -10;
-                    angle = Math.PI;
-                }else
-                    dxArc = -80;
-
-                if(aristaFor.getArista().getY1() >= this.getHeight() / 2)
-                    dyArc = 0;
-                else
-                    dyArc = -40;
-                g2.setStroke(new BasicStroke(2));
-                g2.drawArc((int)aristaFor.getArista().getX2() + dxArc, (int)aristaFor.getArista().getY2() + dyArc, 90, 40, 0, 360 );
-                g2.setStroke(new BasicStroke(1));
-            }
-
+            // if(aristaFor.getOrigen() == aristaFor.getDestino()){
+            //     if(aristaFor.getArista().getX1() >= this.getWidth() / 2){
+            //         dxArc = -10;
+            //         angle = Math.PI;
+            //     }else
+            //         dxArc = -80;
+            //     if(aristaFor.getArista().getY1() >= this.getHeight() / 2)
+            //         dyArc = 0;
+            //     else
+            //         dyArc = -40;
+            //     g2.setStroke(new BasicStroke(2));
+            //     g2.drawArc((int)aristaFor.getArista().getX2() + dxArc, (int)aristaFor.getArista().getY2() + dyArc, 90, 40, 0, 360 );
+            //     g2.setStroke(new BasicStroke(1));
+            // }
             if(isDirected){
+                double dx, dy, angle;
+                dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
+                dy = aristaFor.getArista().getY2() - aristaFor.getArista().getY1();
+                angle = Math.atan2(dy, dx);
                 g2.setColor(new Color(58, 138, 153));
                 g2.translate(aristaFor.getArista().getX2(), aristaFor.getArista().getY2());
                 g2.rotate((angle-Math.PI/2d));  
@@ -336,6 +337,7 @@ public class PintaGrafo extends JPanel{
             g2.setStroke(new BasicStroke(1));
         }
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
+        if(!isBPF)
         for(Arista aristaFor : aristasArray){
             double dx, dy;
             dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
@@ -345,12 +347,12 @@ public class PintaGrafo extends JPanel{
                 dx = dx * 9 / 4;
                 dy = dy * 9 / 4;
             }
-            if(dx == 0 && dy == 0){
-                dy = 40 * 9 / 2;
-                dx = g.getFontMetrics().stringWidth(String.valueOf(aristaFor.getPeso())) * 9 / 4;
-                if(aristaFor.getArista().getY1() >= this.getHeight() / 2) 
-                    dy = (-40 - g.getFontMetrics().getHeight() / 2) * 9 / 2;
-            }
+            // if(dx == 0 && dy == 0){
+            //     dy = 40 * 9 / 2;
+            //     dx = g.getFontMetrics().stringWidth(String.valueOf(aristaFor.getPeso())) * 9 / 4;
+            //     if(aristaFor.getArista().getY1() >= this.getHeight() / 2) 
+            //         dy = (-40 - g.getFontMetrics().getHeight() / 2) * 9 / 2;
+            // }
             g2.drawString("" + aristaFor.getPeso(), (int)(aristaFor.getArista().getX2() - dx * 2 / 9), (int)(aristaFor.getArista().getY2() - dy * 7 / 27)); 
         }
     } 

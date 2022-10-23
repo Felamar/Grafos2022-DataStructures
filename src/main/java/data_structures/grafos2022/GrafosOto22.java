@@ -11,6 +11,7 @@ import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
 import java.util.List;
+
 import javax.swing.filechooser.FileNameExtensionFilter;
 
 public class GrafosOto22 extends JFrame {
@@ -24,6 +25,7 @@ public class GrafosOto22 extends JFrame {
     private ArrayList<Arista> aristasArray;
     private ArrayList<double[][]> floydArray;
     private ArrayList<boolean[][]> warshallArray;
+    public ArrayList<Integer> pathArray;
     private HashMap<Integer, List<Integer>> paths;
     private PintaGrafo panelGraph;
     private AtomicBoolean modifiedAtomBool;
@@ -55,7 +57,6 @@ public class GrafosOto22 extends JFrame {
             aristasArray = new ArrayList<Arista>();
             floydArray = new ArrayList<double[][]>();
             warshallArray = new ArrayList<boolean[][]>();
-            paths = new HashMap<Integer, List<Integer>>();
             modifiedAtomBool = new AtomicBoolean(false);
             panelGraph = new PintaGrafo(nodesArray, aristasArray);
 
@@ -271,26 +272,25 @@ public class GrafosOto22 extends JFrame {
             
             bpfItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    paths.clear();
+                    costMatrixInit();
+                    paths = new HashMap<Integer, List<Integer>>();
                     if (nodesArray.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
                     boolean[] visited = new boolean[nodesArray.size()];
-                    for (int i = 0; i < visited.length; i++) {
+                    for (int i = 0; i < visited.length; i++) 
                         visited[i] = false;
-                    }
+                    pathArray = new ArrayList<>();
                     for (int i = 0; i < visited.length; i++)
                         if(!visited[i])
                             bpfMethod(visited, i); 
-                    for (Integer v : paths.keySet()) {
+                    for (Integer v : paths.keySet()) 
                         areaTArea.append(v + "->" + paths.get(v) + "\n");
-                    }       
+                    areaTArea.append(pathArray+"");
                     BPFWindow bpfFrame = new BPFWindow(paths);
                     bpfFrame.setVisible(true);
-
                 }
-                
             });
             
             dijkstraItem.addActionListener(new ActionListener() {
@@ -673,11 +673,12 @@ public class GrafosOto22 extends JFrame {
         }
     }
 
+    //Búsqueda en profundidad
     public void bpfMethod(boolean[] visited, int vertex){
-        costMatrixInit();
-        //Búsqueda en profundidad
         ArrayList<Integer> L = new ArrayList<Integer>();
         paths.put(vertex + 1, new ArrayList<Integer>());
+        if(!visited[vertex])
+            pathArray.add(vertex+1);
         for(int i = 0; i < nodesArray.size(); i++)
             if(costMatrix[vertex][i] != Double.POSITIVE_INFINITY && vertex != i){
                 L.add(i);

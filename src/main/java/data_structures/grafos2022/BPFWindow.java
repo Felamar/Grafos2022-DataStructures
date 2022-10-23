@@ -11,7 +11,7 @@ public class BPFWindow extends JFrame {
     ArrayList<Integer> toVisit;
     private ArrayList<Arista> aristArray;
     private PintaGrafo panel;
-    private int xc = 0, yc = 50;
+    private int xc = 0, yc = 60;
 
     BPFWindow(HashMap<Integer, List<Integer>> map){
         setSize(1200,700);
@@ -24,6 +24,7 @@ public class BPFWindow extends JFrame {
         aristArray = new ArrayList<Arista>();
         panel = new PintaGrafo(nodes, aristArray);
         panel.setBounds(getBounds());
+        panel.setBPF(true);
         add(panel);
 
         for(int i = 1; i <= paths.size(); i++){
@@ -35,7 +36,7 @@ public class BPFWindow extends JFrame {
         while(!toVisit.isEmpty()){
             bpfMethod(toVisit.get(0));
             toVisit.removeAll(visited);
-            xc += 400;
+            xc += 300;
             yc = 50;
         }
         panel.repaint();
@@ -49,25 +50,24 @@ public class BPFWindow extends JFrame {
         List<Integer> nexTemp;
         visited.add(v);
         if(v == toVisit.get(0)){
-            nodes.get(v - 1).setX(200 + xc);
+            nodes.get(v - 1).setX(150 + xc);
             nodes.get(v - 1).setY(yc);
+            yc+=50;
         }
-        yc+=100;
         nexTemp = paths.get(v);
 
         for(int w = 0; w < nexTemp.size(); w++){
             if(!visited.contains(nexTemp.get(w)) && nodes.get(nexTemp.get(w)-1).getX() == 0){
-                nodes.get(nexTemp.get(w)-1).setX(400 * (w + 1) / (nexTemp.size() + 1) + xc);
+                nodes.get(nexTemp.get(w)-1).setX(300 * (w + 1) / (nexTemp.size() + 1) + xc);
                 nodes.get(nexTemp.get(w)-1).setY(yc);   
             }
             Arista aTemp = new Arista();
             aTemp.setOrigen(v);
             aTemp.setDestino(nexTemp.get(w));
-            aTemp.setPeso(1);
             aristArray.add(aTemp);
         }
+        yc+=50;
         for (Integer w : nexTemp) 
             if(!visited.contains(w)) bpfMethod(w);
-        
     }
 }
