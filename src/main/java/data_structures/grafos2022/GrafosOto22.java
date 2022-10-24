@@ -6,11 +6,15 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
+import java.util.Stack;
 import java.util.List;
+import java.util.Queue;
+import java.lang.Math;
 
 import javax.swing.filechooser.FileNameExtensionFilter;
 
@@ -37,7 +41,7 @@ public class GrafosOto22 extends JFrame {
     private JMenuBar menuBar;
     private JMenu fileMenu, graphMenu, diagramMenu;
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem,
-            floydItem, warshallItem, bpfItem;
+            floydItem, warshallItem, dfsItem, bfsItem;
 
     GrafosOto22() {
         setSize(1300,700);
@@ -75,7 +79,8 @@ public class GrafosOto22 extends JFrame {
             dijkstraItem = new JMenuItem("Dijkstra");
             floydItem = new JMenuItem("Floyd");
             warshallItem = new JMenuItem("Warshall");
-            bpfItem = new JMenuItem("BPF");
+            dfsItem = new JMenuItem("DFS");
+            bfsItem = new JMenuItem("BFS");
 
             aristasLabel = new JLabel("ARISTAS");
             nodo1Label = new JLabel("Origen (nodo1Label)");
@@ -106,7 +111,8 @@ public class GrafosOto22 extends JFrame {
             menuBar.add(graphMenu);
             diagramMenu.add(matrixItem);
             diagramMenu.addSeparator();
-            diagramMenu.add(bpfItem);
+            diagramMenu.add(dfsItem);
+            diagramMenu.add(bfsItem);
             diagramMenu.addSeparator();
             diagramMenu.add(dijkstraItem);
             diagramMenu.add(floydItem);
@@ -270,7 +276,7 @@ public class GrafosOto22 extends JFrame {
                 }
             });
             
-            bpfItem.addActionListener(new ActionListener() {
+            dfsItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     costMatrixInit();
                     paths = new HashMap<Integer, List<Integer>>();
@@ -284,12 +290,43 @@ public class GrafosOto22 extends JFrame {
                     pathArray = new ArrayList<>();
                     for (int i = 0; i < visited.length; i++)
                         if(!visited[i])
-                            bpfMethod(visited, i); 
+                            dfsMethod(visited, i); 
                     for (Integer v : paths.keySet()) 
                         areaTArea.append(v + "->" + paths.get(v) + "\n");
-                    areaTArea.append(pathArray+"");
-                    BPFWindow bpfFrame = new BPFWindow(paths);
-                    bpfFrame.setVisible(true);
+                    areaTArea.append(pathArray + "\n");
+                    // dfsWindow dfsFrame = new dfsWindow(paths);
+                    // dfsFrame.setVisible(true);
+                }
+            });
+            
+            bfsItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    costMatrixInit();
+                    paths = new HashMap<Integer, List<Integer>>();
+                    if (nodesArray.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    Queue<Integer> Q = new LinkedList<>();
+                    ArrayList<Integer> bfs = new ArrayList<>();
+                    boolean[] visited = new boolean[nodesArray.size()];
+                    for(boolean b : visited)
+                        b = false;
+                    Q.add(0);
+                    visited[Q.peek()] = true;
+                    while(!Q.isEmpty()){
+                        bfs.add(Q.peek() + 1);
+                        int v = Q.poll();
+                        for(int w = 0; w < nodesArray.size(); w++)
+                            if(costMatrix[v][w] != Double.POSITIVE_INFINITY && costMatrix[v][w] != 0){
+                                if(!visited[w]){
+                                    visited[w] = true;
+                                    Q.add(w);
+                                }
+                            }
+                    }
+                    areaTArea.append(bfs + "\n");
+
                 }
             });
             
@@ -300,36 +337,33 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
-                    ArrayList<Integer> sumVertex = new ArrayList<Integer>();
-                    ArrayList<Integer> totalVertex = new ArrayList<Integer>();
-                    ArrayList<Double> dijkstraArray = new ArrayList<Double>();
-                    int indexOfMinD;
-                    sumVertex.add(0);
+                    ArrayList<Integer> S = new ArrayList<Integer>();
+                    ArrayList<Integer> V = new ArrayList<Integer>();
+                    ArrayList<Double> dijkstra = new ArrayList<Double>();
+                    ArrayList<Double> nodeValueTemp;
+                    int index_m;
+                    //Init
+                    S.add(0);
                     for (int i = 0; i < nodesArray.size(); i++)
-                        totalVertex.add(i);
+                        V.add(i);
                     for (int i = 0; i < nodesArray.size(); i++)
-                        dijkstraArray.add(costMatrix[0][i]);
-                    totalVertex.removeAll(sumVertex);
+                        dijkstra.add(costMatrix[0][i]);
+                    V.removeAll(S);
+                    
                     for (int i = 0; i < nodesArray.size() - 1; i++) {
-                        Double nodeValueTemp;
-                        indexOfMinD = Collections.min(totalVertex);
-                        nodeValueTemp = dijkstraArray.get(indexOfMinD);
-                        for (int j = 0; j < totalVertex.size(); j++) {
-                            if (nodeValueTemp > dijkstraArray.get(totalVertex.get(j))) {
-                                nodeValueTemp = dijkstraArray.get(totalVertex.get(j));
-                                indexOfMinD = totalVertex.get(j);
-                            }
-                        }
-                        sumVertex.add(indexOfMinD);
-                        totalVertex.removeAll(sumVertex);
-                        for (int j = 0; j < totalVertex.size(); j++) 
-                            if (dijkstraArray.get(totalVertex.get(j)) > dijkstraArray.get(indexOfMinD) + costMatrix[indexOfMinD][totalVertex.get(j)]) 
-                                dijkstraArray.set(totalVertex.get(j), (dijkstraArray.get(indexOfMinD) + costMatrix[indexOfMinD][totalVertex.get(j)]));
-                            
+                        //Valores de D[i] de cada i en V
+                        nodeValueTemp = new ArrayList<>();
+                        for (int v : V) 
+                            nodeValueTemp.add(dijkstra.get(v));
+                        index_m = dijkstra.indexOf(Collections.min(nodeValueTemp));
+                        S.add(index_m);
+                        V.removeAll(S);
+                        for (int v : V) 
+                            dijkstra.set(v, (Math.min(dijkstra.get(v), dijkstra.get(index_m) + costMatrix[index_m][v])));
                     }
-                    dijkstraArray.remove(0);
+                    dijkstra.remove(0);
                     areaTArea.append("DIJKSTRA:\n");
-                    areaTArea.append("" + dijkstraArray + "\n\n");
+                    areaTArea.append(dijkstra + "\n\n");
                 }
             });
 
@@ -664,7 +698,6 @@ public class GrafosOto22 extends JFrame {
         if(directed){
         for (Arista aristaFor : aristasArray)
             costMatrix[aristaFor.getOrigen() - 1][aristaFor.getDestino() - 1] = aristaFor.getPeso();
-            return;
         }else
         //Inicializar matriz de costos grafos no dirigidos
         for (Arista aristaFor : aristasArray) {
@@ -674,7 +707,7 @@ public class GrafosOto22 extends JFrame {
     }
 
     //Búsqueda en profundidad
-    public void bpfMethod(boolean[] visited, int vertex){
+    public void dfsMethod(boolean[] visited, int vertex){
         ArrayList<Integer> L = new ArrayList<Integer>();
         paths.put(vertex + 1, new ArrayList<Integer>());
         if(!visited[vertex])
@@ -687,7 +720,7 @@ public class GrafosOto22 extends JFrame {
         visited[vertex] = true;
         for (Integer w : L) {
             if(!visited[w])
-                bpfMethod(visited, w);           
+                dfsMethod(visited, w);           
         }
     }
 

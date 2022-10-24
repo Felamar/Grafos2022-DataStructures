@@ -4,16 +4,16 @@ import javax.swing.JFrame;
 import java.awt.event.*;
 import java.util.*;
 
-public class BPFWindow extends JFrame {
+public class dfsWindow extends JFrame {
     private HashMap<Integer, List<Integer>> paths;
     private Set<Integer> visited;
     private ArrayList<Nodo> nodes;
-    ArrayList<Integer> toVisit;
+    private ArrayList<Integer> toVisit;
     private ArrayList<Arista> aristArray;
     private PintaGrafo panel;
     private int xc = 0, yc = 60;
 
-    BPFWindow(HashMap<Integer, List<Integer>> map){
+    dfsWindow(HashMap<Integer, List<Integer>> map){
         setSize(1200,700);
         setLocation(50,50);
         setTitle("Búsqueda en Profundidad");
