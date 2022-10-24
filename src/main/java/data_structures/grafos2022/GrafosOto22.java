@@ -11,7 +11,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
-import java.util.Stack;
 import java.util.List;
 import java.util.Queue;
 import java.lang.Math;
@@ -310,10 +309,10 @@ public class GrafosOto22 extends JFrame {
                     Queue<Integer> Q = new LinkedList<>();
                     ArrayList<Integer> bfs = new ArrayList<>();
                     boolean[] visited = new boolean[nodesArray.size()];
-                    for(boolean b : visited)
-                        b = false;
+                    for (int i = 1; i < visited.length; i++)
+                        visited[i] = false;
                     Q.add(0);
-                    visited[Q.peek()] = true;
+                    visited[0] = true;
                     while(!Q.isEmpty()){
                         bfs.add(Q.peek() + 1);
                         int v = Q.poll();
