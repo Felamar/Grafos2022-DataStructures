@@ -6,11 +6,13 @@ import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.io.File;
 import java.io.FileWriter;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.List;
 import java.util.Queue;
 import java.lang.Math;
@@ -28,7 +30,7 @@ public class GrafosOto22 extends JFrame {
     private ArrayList<Arista> aristasArray;
     private ArrayList<double[][]> floydArray;
     private ArrayList<boolean[][]> warshallArray;
-    public ArrayList<Integer> pathArray;
+    public ArrayList<Integer> dfsArray;
     private HashMap<Integer, List<Integer>> paths;
     private PintaGrafo panelGraph;
     private AtomicBoolean modifiedAtomBool;
@@ -40,7 +42,7 @@ public class GrafosOto22 extends JFrame {
     private JMenuBar menuBar;
     private JMenu fileMenu, graphMenu, diagramMenu;
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem,
-            floydItem, warshallItem, dfsItem, bfsItem;
+            floydItem, warshallItem, primItem, dfsItem, bfsItem;
 
     GrafosOto22() {
         setSize(1300,700);
@@ -78,6 +80,7 @@ public class GrafosOto22 extends JFrame {
             dijkstraItem = new JMenuItem("Dijkstra");
             floydItem = new JMenuItem("Floyd");
             warshallItem = new JMenuItem("Warshall");
+            primItem = new JMenuItem("Prim");
             dfsItem = new JMenuItem("DFS");
             bfsItem = new JMenuItem("BFS");
 
@@ -116,6 +119,7 @@ public class GrafosOto22 extends JFrame {
             diagramMenu.add(dijkstraItem);
             diagramMenu.add(floydItem);
             diagramMenu.add(warshallItem);
+            diagramMenu.add(primItem);
             menuBar.add(diagramMenu);
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
@@ -277,22 +281,23 @@ public class GrafosOto22 extends JFrame {
             
             dfsItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    costMatrixInit();
-                    paths = new HashMap<Integer, List<Integer>>();
                     if (nodesArray.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    costMatrixInit();
+                    paths = new HashMap<Integer, List<Integer>>();
+                    dfsArray = new ArrayList<>();
                     boolean[] visited = new boolean[nodesArray.size()];
                     for (int i = 0; i < visited.length; i++) 
                         visited[i] = false;
-                    pathArray = new ArrayList<>();
                     for (int i = 0; i < visited.length; i++)
                         if(!visited[i])
                             dfsMethod(visited, i); 
+                    areaTArea.setText("");
                     for (Integer v : paths.keySet()) 
                         areaTArea.append(v + "->" + paths.get(v) + "\n");
-                    areaTArea.append(pathArray + "\n");
+                    areaTArea.append(dfsArray + "\n");
                     // dfsWindow dfsFrame = new dfsWindow(paths);
                     // dfsFrame.setVisible(true);
                 }
@@ -300,12 +305,11 @@ public class GrafosOto22 extends JFrame {
             
             bfsItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    costMatrixInit();
-                    paths = new HashMap<Integer, List<Integer>>();
                     if (nodesArray.isEmpty()) {
                         JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
                         return;
                     }
+                    costMatrixInit();
                     Queue<Integer> Q = new LinkedList<>();
                     ArrayList<Integer> bfs = new ArrayList<>();
                     boolean[] visited = new boolean[nodesArray.size()];
@@ -321,9 +325,7 @@ public class GrafosOto22 extends JFrame {
                                 if(!visited[w]){
                                     visited[w] = true;
                                     Q.add(w);
-                                }
-                            }
-                    }
+                    }}}
                     areaTArea.append(bfs + "\n");
 
                 }
@@ -423,7 +425,7 @@ public class GrafosOto22 extends JFrame {
                     }
                     
                     costMatrixInit();
-
+                    warshallArray = new ArrayList<>();
                     for (int i = 0; i < nodesArray.size(); i++){
                         warshallArray.add(new boolean[nodesArray.size()][nodesArray.size()]);
                     for (int j = 0; j < nodesArray.size(); j++)
@@ -457,6 +459,79 @@ public class GrafosOto22 extends JFrame {
                     //Exercices 6.1, 6.4, 6.6, 6.7 pag 226, 227
                     areaTArea.append("\n");
                 }
+            });
+
+            primItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (nodesArray.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    costMatrixInit();
+                    HashMap<Double, Point> primOut = new HashMap<>();
+                    ArrayList<Integer[]> closest = new ArrayList<Integer[]>();
+                    ArrayList<Double> cheapest = new ArrayList<>();
+                    Double[][] C = new Double[nodesArray.size()][nodesArray.size()];
+                    Set<Integer> V = new HashSet<>();
+                    Set<Integer> U = new HashSet<>();
+                    boolean[] in_G = new boolean[nodesArray.size()];
+                    int x = -1, y = -1;
+                    for(int i = 0; i < nodesArray.size(); i++){
+                        in_G[i] = false;
+                        V.add(i);
+                        for(int j = 0; j < nodesArray.size(); j++)
+                            C[i][j] = 0.0;
+                    }
+                    System.out.println("-----------------------------------------------------------------------------------------");
+                    // for(int i = 0; i < nodesArray.size(); i++)
+                    //     for(int j = i + 1; j < nodesArray.size(); j++)
+                    //         C[i][j] = costMatrix[i][j];
+                            
+                    // for(int i = 0; i < nodesArray.size(); i ++){
+                    //     for(int j = 0; j < nodesArray.size(); j ++)
+                    //     System.out.print(C[i][j] + "    ");
+                    //     System.out.println();
+                    // }
+                    U.add(0);
+                    in_G[0] = true;
+                    while(!V.isEmpty()){
+                        V.removeAll(U);
+                        for(Integer u : U)
+                                in_G[u]=true;
+                        closest.clear();
+                        cheapest.clear();
+                        for(int u : U)
+                            for(int v : V)
+                                if(!in_G[v] && costMatrix[u][v] != Double.POSITIVE_INFINITY && costMatrix[u][v] != 0 ){ 
+                                    closest.add(new Integer[]{u, v, (int)costMatrix[u][v]});
+                                }
+                        if(closest.isEmpty()){
+                            System.out.println("ASA");
+                            continue;
+                        }
+                        // System.out.println("Closest :" + closest);
+                        Double ch = Double.POSITIVE_INFINITY;
+                        for(Integer[] q : closest)
+                            if(ch > q[2]){
+                                x = q[0];
+                                y = q[1];
+                                ch = q[2] + 0.0;
+                            }
+                        // for(int u : U)    
+                        //     for(int c : closest)
+                        //         if(!in_G[c]&&C[u][c] != Double.POSITIVE_INFINITY && C[u][c] != 0 && ch > C[u][c]){
+                        //             ch = C[u][c];
+                        //             x = u; y = c;
+                        //         }
+                        System.out.println("Cheapest : " + ch + "   Aris : " + x + " -> " + y);
+                        primOut.put(ch, new Point(x+1, y+1));
+                        U.add(y);
+                        System.out.println(y);                      
+                    }
+                    for(Double v : primOut.keySet())
+                        System.out.println(v + "    " + primOut.get(v).getX() + "--->" + primOut.get(v).getY());  
+                    // areaTArea.append(p.getX() + "->" + p.getY() + primOut.get(p) +"\n");
+                }   
             });
             
             dirItem.addActionListener(new ActionListener() {
@@ -683,6 +758,7 @@ public class GrafosOto22 extends JFrame {
     }
 
     public void costMatrixInit() {
+        if(nodesArray.isEmpty()) return;
         costMatrix = new double[nodesArray.size()][nodesArray.size()];
         // Inicializar matriz de costos
         for (int i = 0; i < nodesArray.size(); i++)
@@ -710,7 +786,7 @@ public class GrafosOto22 extends JFrame {
         ArrayList<Integer> L = new ArrayList<Integer>();
         paths.put(vertex + 1, new ArrayList<Integer>());
         if(!visited[vertex])
-            pathArray.add(vertex+1);
+            dfsArray.add(vertex+1);
         for(int i = 0; i < nodesArray.size(); i++)
             if(costMatrix[vertex][i] != Double.POSITIVE_INFINITY && vertex != i){
                 L.add(i);
