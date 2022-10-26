@@ -472,6 +472,10 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
+                    ArrayList<Arista> primAristas = new ArrayList<>();
+                    JFrame primFrame = new JFrame("Prim");
+                    PintaGrafo p = new PintaGrafo(nodesArray, primAristas);
+                    
                     ArrayList<Integer[]> toVisit = new ArrayList<Integer[]>();
                     ArrayList<Integer[]> st = new ArrayList<Integer[]>();
                     Set<Integer> V = new HashSet<>();
@@ -498,19 +502,15 @@ public class GrafosOto22 extends JFrame {
                         st.add(new Integer[]{v1, v2});           
                     }
                     areaTArea.append("\nPrim:\n"); 
-                    ArrayList<Arista> primAristas = new ArrayList<>();
                     for(Integer[] branch : st){
                         areaTArea.append((branch[0]+1) + "--->" + (branch[1]+1) + "\n");
                         primAristas.add(new Arista(branch[0]+1, branch[1]+1));
                     }
-                    JFrame primFrame = new JFrame("Prim");
-                    PintaGrafo p = new PintaGrafo(nodesArray, primAristas);
                     p.setDirected(false);
                     p.setSearch(true);
                     primFrame.setVisible(true);
                     primFrame.setBounds(panelGraph.getBounds());
                     primFrame.add(p);
-                    
                 }   
             });
             
@@ -521,6 +521,10 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
+                    ArrayList<Arista> kAristas = new ArrayList<>();
+                    JFrame kruskalFrame = new JFrame("Kruskal");
+                    PintaGrafo p = new PintaGrafo(nodesArray, kAristas);
+
                     ArrayList<Integer[]> K = new ArrayList<>();
                     ArrayList<Integer[]> Q = new ArrayList<>();
                     Set<Set<Integer>> VS = new HashSet<>();
@@ -532,15 +536,15 @@ public class GrafosOto22 extends JFrame {
                         int minWeight = Integer.MAX_VALUE, x = -1, y = -1, i = -1;
                         for(Integer[] k : K)
                             if(minWeight > k[2]){
-                                x = k[0]; //5
-                                y = k[1]; //6
+                                x = k[0];
+                                y = k[1];
                                 minWeight = k[2];
                                 i = K.indexOf(k);
                             }
                         K.remove(i);
                         Set<Integer> w1 = new HashSet<>();
-                        w1.add(x);
                         Set<Integer> w2 = new HashSet<>();
+                        w1.add(x);
                         w2.add(y);
                         for(Set<Integer> vs : VS)
                             if(vs.containsAll(w1)){
@@ -561,14 +565,10 @@ public class GrafosOto22 extends JFrame {
                         Q.add(new Integer[]{x, y});
                     }
                     areaTArea.append("\nKruskal:\n"); 
-                    ArrayList<Arista> kAristas = new ArrayList<>();
                     for(Integer[] q : Q){
                         areaTArea.append(q[0] + "--->" + q[1] + "\n");
                         kAristas.add(new Arista(q[0], q[1]));
                     }
-
-                    JFrame kruskalFrame = new JFrame("Kruskal");
-                    PintaGrafo p = new PintaGrafo(nodesArray, kAristas);
                     p.setDirected(false);
                     p.setSearch(true);
                     kruskalFrame.setVisible(true);
