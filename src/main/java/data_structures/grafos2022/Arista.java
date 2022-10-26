@@ -3,9 +3,16 @@ package data_structures.grafos2022;
 import java.awt.geom.*;
 
 public class Arista {
-
+    
     private Line2D arista = null;
     private int peso, Origen, Destino;
+
+    Arista(){}
+
+    Arista(int x, int y){
+        Origen = x;
+        Destino = y;
+    }
 
     public Line2D getArista() {
         if(arista == null)

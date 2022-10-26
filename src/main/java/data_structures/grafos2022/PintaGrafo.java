@@ -9,7 +9,7 @@ import java.util.ArrayList;
 public class PintaGrafo extends JPanel{
 
     private int auxData, auxDragged, nodePopUp, aristaPopUp = -1;
-    private boolean press = false, isModified = false, creatingArista = false, isDirected = true, isBPF = false;
+    private boolean press = false, isModified = false, creatingArista = false, isDirected = true, isSearch = false;
     private ArrayList<Nodo> nodesArray;
     private ArrayList<Arista> aristasArray;
     private Nodo lineNodo;
@@ -259,8 +259,8 @@ public class PintaGrafo extends JPanel{
         isDirected = d;
     }
 
-    public void setBPF(boolean b){
-        isBPF = b;
+    public void setSearch(boolean b){
+        isSearch = b;
     }
 
     public void paintComponent(Graphics g){
@@ -277,9 +277,9 @@ public class PintaGrafo extends JPanel{
         for(Arista aristaFor : aristasArray){
             aristaFor.setArista(new Line2D.Double(nodesArray.get(aristaFor.getOrigen() -1).getPunto(), nodesArray.get(aristaFor.getDestino() -1).getPunto()));
             g2.setColor(new Color(62, 169, 189));
-            if(isBPF && aristaFor.getOrigen() > aristaFor.getDestino())
-                g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,0, new float[]{5}, 0));
-            else
+            // if(isSearch && aristaFor.getOrigen() > aristaFor.getDestino())
+            //     g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,0, new float[]{5}, 0));
+            // else
                 g2.setStroke(new BasicStroke(2));
             
             g2.draw((Line2D)aristaFor.getArista());
@@ -337,7 +337,7 @@ public class PintaGrafo extends JPanel{
             g2.setStroke(new BasicStroke(1));
         }
         g2.setFont(new Font(Font.MONOSPACED, Font.BOLD, 15));
-        if(!isBPF)
+        if(!isSearch)
         for(Arista aristaFor : aristasArray){
             double dx, dy;
             dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();

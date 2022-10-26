@@ -4,6 +4,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -42,7 +43,7 @@ public class GrafosOto22 extends JFrame {
     private JMenuBar menuBar;
     private JMenu fileMenu, graphMenu, diagramMenu;
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem,
-            floydItem, warshallItem, primItem, dfsItem, bfsItem;
+            floydItem, warshallItem, primItem, kruskalItem, dfsItem, bfsItem;
 
     GrafosOto22() {
         setSize(1300,700);
@@ -81,6 +82,9 @@ public class GrafosOto22 extends JFrame {
             floydItem = new JMenuItem("Floyd");
             warshallItem = new JMenuItem("Warshall");
             primItem = new JMenuItem("Prim");
+            primItem.setEnabled(false);
+            kruskalItem = new JMenuItem("Kruskal");
+            kruskalItem.setEnabled(false);
             dfsItem = new JMenuItem("DFS");
             bfsItem = new JMenuItem("BFS");
 
@@ -120,6 +124,7 @@ public class GrafosOto22 extends JFrame {
             diagramMenu.add(floydItem);
             diagramMenu.add(warshallItem);
             diagramMenu.add(primItem);
+            diagramMenu.add(kruskalItem);
             menuBar.add(diagramMenu);
             menuBar.setBounds(0, 0, 1500, 25);
             add(menuBar);
@@ -455,8 +460,7 @@ public class GrafosOto22 extends JFrame {
                             }
                             areaTArea.append("\n");
                         }
-                    }//pag 217 búsqueda en profundidad && búsqueda por niveles
-                    //Exercices 6.1, 6.4, 6.6, 6.7 pag 226, 227
+                    }
                     areaTArea.append("\n");
                 }
             });
@@ -468,83 +472,122 @@ public class GrafosOto22 extends JFrame {
                         return;
                     }
                     costMatrixInit();
-                    HashMap<Double, Point> primOut = new HashMap<>();
-                    ArrayList<Integer[]> closest = new ArrayList<Integer[]>();
-                    ArrayList<Double> cheapest = new ArrayList<>();
-                    Double[][] C = new Double[nodesArray.size()][nodesArray.size()];
+                    ArrayList<Integer[]> toVisit = new ArrayList<Integer[]>();
+                    ArrayList<Integer[]> st = new ArrayList<Integer[]>();
                     Set<Integer> V = new HashSet<>();
                     Set<Integer> U = new HashSet<>();
-                    boolean[] in_G = new boolean[nodesArray.size()];
-                    int x = -1, y = -1;
-                    for(int i = 0; i < nodesArray.size(); i++){
-                        in_G[i] = false;
-                        V.add(i);
-                        for(int j = 0; j < nodesArray.size(); j++)
-                            C[i][j] = 0.0;
-                    }
-                    System.out.println("-----------------------------------------------------------------------------------------");
-                    // for(int i = 0; i < nodesArray.size(); i++)
-                    //     for(int j = i + 1; j < nodesArray.size(); j++)
-                    //         C[i][j] = costMatrix[i][j];
-                            
-                    // for(int i = 0; i < nodesArray.size(); i ++){
-                    //     for(int j = 0; j < nodesArray.size(); j ++)
-                    //     System.out.print(C[i][j] + "    ");
-                    //     System.out.println();
-                    // }
+                    for(int i = 0; i < nodesArray.size(); i++) V.add(i);
                     U.add(0);
-                    in_G[0] = true;
                     while(!V.isEmpty()){
                         V.removeAll(U);
-                        for(Integer u : U)
-                                in_G[u]=true;
-                        closest.clear();
-                        cheapest.clear();
+                        toVisit.clear();
                         for(int u : U)
-                            for(int v : V)
-                                if(!in_G[v] && costMatrix[u][v] != Double.POSITIVE_INFINITY && costMatrix[u][v] != 0 ){ 
-                                    closest.add(new Integer[]{u, v, (int)costMatrix[u][v]});
-                                }
-                        if(closest.isEmpty()){
-                            System.out.println("ASA");
-                            continue;
-                        }
-                        // System.out.println("Closest :" + closest);
+                        for(int v : V)
+                            if(costMatrix[u][v] != Double.POSITIVE_INFINITY && costMatrix[u][v] != 0)
+                                toVisit.add(new Integer[]{u, v, (int)costMatrix[u][v]});
+                        if(toVisit.isEmpty()) break;
+                        int v1 = -1, v2 = -1;
                         Double ch = Double.POSITIVE_INFINITY;
-                        for(Integer[] q : closest)
+                        for(Integer[] q : toVisit)
                             if(ch > q[2]){
-                                x = q[0];
-                                y = q[1];
+                                v1 = q[0];
+                                v2 = q[1];
                                 ch = q[2] + 0.0;
                             }
-                        // for(int u : U)    
-                        //     for(int c : closest)
-                        //         if(!in_G[c]&&C[u][c] != Double.POSITIVE_INFINITY && C[u][c] != 0 && ch > C[u][c]){
-                        //             ch = C[u][c];
-                        //             x = u; y = c;
-                        //         }
-                        System.out.println("Cheapest : " + ch + "   Aris : " + x + " -> " + y);
-                        primOut.put(ch, new Point(x+1, y+1));
-                        U.add(y);
-                        System.out.println(y);                      
-                    // }
-                    // areaTArea.append(p.getX() + "->" + p.getY() + primOut.get(p) +"\n");
-                    // for(Integer[] q : closest)
-                    //     System.out.println("Path: " + q[0] + " --> " + q[1] + "   Peso: " + q[2]);
+                        U.add(v2);
+                        st.add(new Integer[]{v1, v2});           
                     }
-                areaTArea.setText("");
-                for(Double v : primOut.keySet())
-                    areaTArea.append(v + "    " + primOut.get(v).getX() + "--->" + primOut.get(v).getY() + "\n");  
+                    areaTArea.append("\nPrim:\n"); 
+                    ArrayList<Arista> primAristas = new ArrayList<>();
+                    for(Integer[] branch : st){
+                        areaTArea.append((branch[0]+1) + "--->" + (branch[1]+1) + "\n");
+                        primAristas.add(new Arista(branch[0]+1, branch[1]+1));
+                    }
+                    JFrame primFrame = new JFrame("Prim");
+                    PintaGrafo p = new PintaGrafo(nodesArray, primAristas);
+                    p.setDirected(false);
+                    p.setSearch(true);
+                    primFrame.setVisible(true);
+                    primFrame.setBounds(panelGraph.getBounds());
+                    primFrame.add(p);
+                    
                 }   
-        });
+            });
+            
+            kruskalItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if (nodesArray.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    costMatrixInit();
+                    ArrayList<Integer[]> K = new ArrayList<>();
+                    ArrayList<Integer[]> Q = new ArrayList<>();
+                    Set<Set<Integer>> VS = new HashSet<>();
+                    for(Arista arista : aristasArray)
+                        K.add(new Integer[]{arista.getOrigen(), arista.getDestino(), arista.getPeso()});
+                    for(Nodo nodo : nodesArray)
+                        VS.add(new HashSet<>(Arrays.asList(nodo.getDato())));
+                    while(VS.size() > 1){
+                        int minWeight = Integer.MAX_VALUE, x = -1, y = -1, i = -1;
+                        for(Integer[] k : K)
+                            if(minWeight > k[2]){
+                                x = k[0]; //5
+                                y = k[1]; //6
+                                minWeight = k[2];
+                                i = K.indexOf(k);
+                            }
+                        K.remove(i);
+                        Set<Integer> w1 = new HashSet<>();
+                        w1.add(x);
+                        Set<Integer> w2 = new HashSet<>();
+                        w2.add(y);
+                        for(Set<Integer> vs : VS)
+                            if(vs.containsAll(w1)){
+                                w1.addAll(vs);
+                                break;
+                            }
+                        for(Set<Integer> vs : VS)
+                            if(vs.containsAll(w2)){
+                                w2.addAll(vs);
+                                break;
+                            }                       
+                        if(w1.equals(w2))
+                            continue;
+                        VS.remove(w1);
+                        VS.remove(w2);
+                        w1.addAll(w2);
+                        VS.add(w1);
+                        Q.add(new Integer[]{x, y});
+                    }
+                    areaTArea.append("\nKruskal:\n"); 
+                    ArrayList<Arista> kAristas = new ArrayList<>();
+                    for(Integer[] q : Q){
+                        areaTArea.append(q[0] + "--->" + q[1] + "\n");
+                        kAristas.add(new Arista(q[0], q[1]));
+                    }
+
+                    JFrame kruskalFrame = new JFrame("Kruskal");
+                    PintaGrafo p = new PintaGrafo(nodesArray, kAristas);
+                    p.setDirected(false);
+                    p.setSearch(true);
+                    kruskalFrame.setVisible(true);
+                    kruskalFrame.setBounds(panelGraph.getBounds());
+                    kruskalFrame.add(p);
+                }   
+            });
             
             dirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     directed = true;
                     panelGraph.setDirected(directed);
+                    dfsItem.setEnabled(true);
+                    bfsItem.setEnabled(true);
                     dijkstraItem.setEnabled(true);
                     floydItem.setEnabled(true);
                     warshallItem.setEnabled(true);
+                    primItem.setEnabled(false);
+                    kruskalItem.setEnabled(false);
                     panelGraph.repaint();
                 }
             });
@@ -572,10 +615,13 @@ public class GrafosOto22 extends JFrame {
                     }
                     directed = false;
                     panelGraph.setDirected(directed);
+                    dfsItem.setEnabled(false);
+                    bfsItem.setEnabled(false);
                     dijkstraItem.setEnabled(false);
                     floydItem.setEnabled(false);
                     warshallItem.setEnabled(false);
-                    modifiedAtomBool.set(true);
+                    primItem.setEnabled(true);
+                    kruskalItem.setEnabled(true);
                     panelGraph.repaint();
                 }
             });
