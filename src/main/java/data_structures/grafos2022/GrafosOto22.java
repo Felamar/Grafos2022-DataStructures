@@ -527,12 +527,16 @@ public class GrafosOto22 extends JFrame {
                         primOut.put(ch, new Point(x+1, y+1));
                         U.add(y);
                         System.out.println(y);                      
-                    }
-                    for(Double v : primOut.keySet())
-                        System.out.println(v + "    " + primOut.get(v).getX() + "--->" + primOut.get(v).getY());  
+                    // }
                     // areaTArea.append(p.getX() + "->" + p.getY() + primOut.get(p) +"\n");
+                    // for(Integer[] q : closest)
+                    //     System.out.println("Path: " + q[0] + " --> " + q[1] + "   Peso: " + q[2]);
+                    }
+                areaTArea.setText("");
+                for(Double v : primOut.keySet())
+                    areaTArea.append(v + "    " + primOut.get(v).getX() + "--->" + primOut.get(v).getY() + "\n");  
                 }   
-            });
+        });
             
             dirItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
