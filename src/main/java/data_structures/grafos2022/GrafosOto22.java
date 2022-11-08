@@ -89,8 +89,8 @@ public class GrafosOto22 extends JFrame {
             bfsItem = new JMenuItem("BFS");
 
             aristasLabel = new JLabel("ARISTAS");
-            nodo1Label = new JLabel("Origen (nodo1Label)");
-            nodo2Label = new JLabel("Destino (nodo2Label)");
+            nodo1Label = new JLabel("Origen");
+            nodo2Label = new JLabel("Destino");
             pesoLabel = new JLabel("Peso");
 
             nodeOriTField = new JTextField();
@@ -350,11 +350,10 @@ public class GrafosOto22 extends JFrame {
                     int index_m;
                     //Init
                     S.add(0);
-                    for (int i = 0; i < nodesArray.size(); i++)
+                    for (int i = 1; i < nodesArray.size(); i++)
                         V.add(i);
                     for (int i = 0; i < nodesArray.size(); i++)
                         dijkstra.add(costMatrix[0][i]);
-                    V.removeAll(S);
                     
                     for (int i = 0; i < nodesArray.size() - 1; i++) {
                         //Valores de D[i] de cada i en V
