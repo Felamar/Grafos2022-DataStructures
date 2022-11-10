@@ -265,7 +265,6 @@ public class PintaGrafo extends JPanel{
 
     public void paintComponent(Graphics g){
         super.paintComponent(g);
-        // int dxArc , dyArc;
         Graphics2D g2 = (Graphics2D)g;
         AffineTransform tx = new AffineTransform();
         RenderingHints rh = new RenderingHints(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
@@ -277,27 +276,9 @@ public class PintaGrafo extends JPanel{
         for(Arista aristaFor : aristasArray){
             aristaFor.setArista(new Line2D.Double(nodesArray.get(aristaFor.getOrigen() -1).getPunto(), nodesArray.get(aristaFor.getDestino() -1).getPunto()));
             g2.setColor(new Color(62, 169, 189));
-            // if(isSearch && aristaFor.getOrigen() > aristaFor.getDestino())
-            //     g2.setStroke(new BasicStroke(3, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,0, new float[]{5}, 0));
-            // else
-                g2.setStroke(new BasicStroke(2));
-            
+            g2.setStroke(new BasicStroke(2));
             g2.draw((Line2D)aristaFor.getArista());
             g2.setStroke(new BasicStroke(1));
-            // if(aristaFor.getOrigen() == aristaFor.getDestino()){
-            //     if(aristaFor.getArista().getX1() >= this.getWidth() / 2){
-            //         dxArc = -10;
-            //         angle = Math.PI;
-            //     }else
-            //         dxArc = -80;
-            //     if(aristaFor.getArista().getY1() >= this.getHeight() / 2)
-            //         dyArc = 0;
-            //     else
-            //         dyArc = -40;
-            //     g2.setStroke(new BasicStroke(2));
-            //     g2.drawArc((int)aristaFor.getArista().getX2() + dxArc, (int)aristaFor.getArista().getY2() + dyArc, 90, 40, 0, 360 );
-            //     g2.setStroke(new BasicStroke(1));
-            // }
             if(isDirected){
                 double dx, dy, angle;
                 dx = aristaFor.getArista().getX2() - aristaFor.getArista().getX1();
@@ -347,12 +328,6 @@ public class PintaGrafo extends JPanel{
                 dx = dx * 9 / 4;
                 dy = dy * 9 / 4;
             }
-            // if(dx == 0 && dy == 0){
-            //     dy = 40 * 9 / 2;
-            //     dx = g.getFontMetrics().stringWidth(String.valueOf(aristaFor.getPeso())) * 9 / 4;
-            //     if(aristaFor.getArista().getY1() >= this.getHeight() / 2) 
-            //         dy = (-40 - g.getFontMetrics().getHeight() / 2) * 9 / 2;
-            // }
             g2.drawString("" + aristaFor.getPeso(), (int)(aristaFor.getArista().getX2() - dx * 2 / 9), (int)(aristaFor.getArista().getY2() - dy * 7 / 27)); 
         }
     } 
