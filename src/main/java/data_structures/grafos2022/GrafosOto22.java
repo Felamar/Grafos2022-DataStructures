@@ -43,7 +43,7 @@ public class GrafosOto22 extends JFrame {
     private JMenuBar menuBar;
     private JMenu fileMenu, graphMenu, diagramMenu;
     private JMenuItem newItem, saveItem, saveAsItem, openItem, closeItem, dirItem, nondirItem, matrixItem, dijkstraItem,
-            floydItem, warshallItem, primItem, kruskalItem, dfsItem, bfsItem;
+            floydItem, warshallItem, ecceniItem, primItem, kruskalItem, dfsItem, bfsItem;
 
     GrafosOto22() {
         setSize(1300,700);
@@ -81,6 +81,7 @@ public class GrafosOto22 extends JFrame {
             dijkstraItem = new JMenuItem("Dijkstra");
             floydItem = new JMenuItem("Floyd");
             warshallItem = new JMenuItem("Warshall");
+            ecceniItem = new JMenuItem("Excentricidad");
             primItem = new JMenuItem("Prim");
             primItem.setEnabled(false);
             kruskalItem = new JMenuItem("Kruskal");
@@ -123,6 +124,7 @@ public class GrafosOto22 extends JFrame {
             diagramMenu.add(dijkstraItem);
             diagramMenu.add(floydItem);
             diagramMenu.add(warshallItem);
+            diagramMenu.add(ecceniItem);
             diagramMenu.add(primItem);
             diagramMenu.add(kruskalItem);
             menuBar.add(diagramMenu);
@@ -461,6 +463,30 @@ public class GrafosOto22 extends JFrame {
                         }
                     }
                     areaTArea.append("\n");
+                }
+            });
+
+            ecceniItem.addActionListener(new ActionListener(){
+                public void actionPerformed(ActionEvent e){
+                    if (nodesArray.isEmpty()) {
+                        JOptionPane.showMessageDialog(null, "No hay nodos existentes", "WARNING", JOptionPane.WARNING_MESSAGE);
+                        return;
+                    }
+                    costMatrixInit();
+                    floydItem.doClick();
+                    areaTArea.setText("");
+                    Double[] max = new Double[nodesArray.size()];
+                    for(int i = 0; i < nodesArray.size(); i++){
+                        max[i] = floydArray.get(floydArray.size() - 1)[0][i];
+                        for(int j = 1; j < nodesArray.size(); j++){
+                            max[i] = floydArray.get(floydArray.size() - 1)[j][i] > max[i] ? floydArray.get(floydArray.size() - 1)[j][i] : max[i];
+                        }
+                    }
+                    ArrayList<Double> temp = new ArrayList<>();
+                    Collections.addAll(temp, max);
+                    areaTArea.append(Arrays.toString(max)+"\n");
+                    areaTArea.append("El nodo central es : \n" + (temp.indexOf(Collections.min(temp)) + 1));
+                    
                 }
             });
 
