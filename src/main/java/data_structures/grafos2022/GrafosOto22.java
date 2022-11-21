@@ -611,6 +611,7 @@ public class GrafosOto22 extends JFrame {
                     dijkstraItem.setEnabled(true);
                     floydItem.setEnabled(true);
                     warshallItem.setEnabled(true);
+                    ecceniItem.setEnabled(true);
                     primItem.setEnabled(false);
                     kruskalItem.setEnabled(false);
                     panelGraph.repaint();
@@ -645,6 +646,7 @@ public class GrafosOto22 extends JFrame {
                     dijkstraItem.setEnabled(false);
                     floydItem.setEnabled(false);
                     warshallItem.setEnabled(false);
+                    ecceniItem.setEnabled(false);
                     primItem.setEnabled(true);
                     kruskalItem.setEnabled(true);
                     panelGraph.repaint();
