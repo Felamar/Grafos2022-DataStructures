@@ -157,8 +157,8 @@ public class PintaGrafo extends JPanel{
                         String s = JOptionPane.showInputDialog(null, "Introduzca el peso del camino:", "Grafos Otoño 2022", JOptionPane.PLAIN_MESSAGE);
                         if(s == null)
                             throw new NumberFormatException();
-                        if(Integer.parseInt(s) <= 0)
-                            throw new NumberFormatException();
+                        // if(Integer.parseInt(s) <= 0)
+                        //     throw new NumberFormatException();
                         if(changePeso == -1){
                             aristaTemp.setPeso(Integer.parseInt(s));
                             aristasArray.add(aristaTemp);

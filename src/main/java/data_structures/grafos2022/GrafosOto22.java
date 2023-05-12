@@ -363,6 +363,14 @@ public class GrafosOto22 extends JFrame {
                         for (int v : V) 
                             nodeValueTemp.add(dijkstra.get(v));
                         index_m = dijkstra.indexOf(Collections.min(nodeValueTemp));
+                        if(S.contains(index_m)){
+                            int l = index_m + 1, k = 1; 
+                            while(k <= Collections.frequency(S, index_m)){
+                                k = dijkstra.get(l) == Collections.min(nodeValueTemp) ? k + 1 : k;
+                                index_m = l;
+                                l++;
+                            }
+                        }
                         S.add(index_m);
                         V.removeAll(S);
                         for (int v : V) 
@@ -394,7 +402,7 @@ public class GrafosOto22 extends JFrame {
                     for (int i = 0; i < nodesArray.size(); i++)
                         if (floydArray.get(k)[i][k] + floydArray.get(k)[k][j] < floydArray.get(k)[i][j])
                             for(int h = k; h < nodesArray.size(); h++)
-                            floydArray.get(h)[i][j] = floydArray.get(h)[i][k] + floydArray.get(h)[k][j];
+                                floydArray.get(h)[i][j] = floydArray.get(h)[i][k] + floydArray.get(h)[k][j];
                     }
                     
                     areaTArea.append("Floyd: \n");
